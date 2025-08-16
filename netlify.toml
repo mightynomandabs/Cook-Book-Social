@@ -4,6 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  CI = "false"
+  GENERATE_SOURCEMAP = "false"
+  NPM_FLAGS = "--no-audit --no-fund --silent"
 
 [[redirects]]
   from = "/*"
