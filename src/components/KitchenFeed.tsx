@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Bell } from 'lucide-react';
 import FeaturedStories from './FeaturedStories';
-import RecipeFeed from './RecipeFeed';
+import OptimizedRecipeFeed from './OptimizedRecipeFeed';
 import FilterButton from './FilterButton';
 import SkeletonLoader from './SkeletonLoader';
 import PullToRefresh from './PullToRefresh';
@@ -108,17 +108,17 @@ const KitchenFeed: React.FC = () => {
         </div>
       )}
 
-      {/* Recipe Feed */}
-      {!loading && !error && (
-        <div className="flex-1">
-          <RecipeFeed 
-            recipes={recipes} 
-            searchQuery={searchQuery} 
-            showFilters={showFilters}
-            onFilterByCuisine={filterRecipesByCuisine}
-          />
-        </div>
-      )}
+                     {/* Recipe Feed */}
+               {!loading && !error && (
+                 <div className="flex-1">
+                   <OptimizedRecipeFeed 
+                     recipes={recipes} 
+                     searchQuery={searchQuery} 
+                     showFilters={showFilters}
+                     onFilterByCuisine={filterRecipesByCuisine}
+                   />
+                 </div>
+               )}
 
       {/* Floating Action Button */}
       <FloatingActionButton

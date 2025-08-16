@@ -54,6 +54,8 @@ export interface Recipe {
   translations: Record<string, string>;
   createdAt: Date;
   views: number;
+  // New properties for optimized components
+  cookingTime: number;
 }
 
 export interface Ingredient {

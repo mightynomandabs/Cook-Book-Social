@@ -191,7 +191,8 @@ export const sampleRecipe: Recipe = {
     'Marathi': 'सुगंधी बासमती भात'
   },
   createdAt: new Date('2024-01-15'),
-  views: 8920
+  views: 8920,
+  cookingTime: 60
 };
 
 export const sampleStories: Story[] = [

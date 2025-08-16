@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase, supabaseHelpers } from '../lib/supabase'
 import { Recipe, User, Story } from '../types'
+import { sampleRecipes, Recipe as SampleRecipe } from '../data/sampleRecipes'
 
 export const useSupabaseData = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -12,7 +13,63 @@ export const useSupabaseData = () => {
   const fetchRecipes = async (limit = 20, offset = 0) => {
     try {
       setLoading(true)
-      const data = await supabaseHelpers.getRecipes(limit, offset)
+      // For now, use sample data instead of Supabase
+      // const data = await supabaseHelpers.getRecipes(limit, offset)
+      const data = sampleRecipes.slice(offset, offset + limit).map(recipe => ({
+        id: recipe.id,
+        title: recipe.title,
+        description: recipe.description,
+        creator: {
+          id: recipe.creator.name.toLowerCase().replace(/\s+/g, '-'),
+          name: recipe.creator.name,
+          email: `${recipe.creator.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+          avatar: recipe.creator.avatar || '',
+          bio: `Professional chef specializing in ${recipe.tags[0] || 'international'} cuisine`,
+          cookingLevel: 5,
+          cookingLevelTitle: 'Expert',
+          badges: [],
+          followers: Math.floor(Math.random() * 1000) + 100,
+          following: Math.floor(Math.random() * 500) + 50,
+          posts: Math.floor(Math.random() * 100) + 10,
+          savedRecipes: [],
+          interests: recipe.tags,
+          dietaryPreferences: ['Vegetarian', 'Non-Vegetarian'],
+          preferredLanguages: ['English'],
+          location: 'India',
+          isRestaurant: false
+        },
+        image: recipe.image || '',
+        video: undefined,
+        teaser: recipe.description.substring(0, 100),
+        likes: recipe.likes,
+        comments: 0,
+        saves: 0,
+        isSaved: false,
+        isLiked: false,
+        tags: recipe.tags,
+        cuisine: recipe.tags[0] || 'International',
+        dietaryTags: recipe.tags.filter(tag => ['Vegetarian', 'Vegan', 'Gluten-Free'].includes(tag)),
+        prepTime: Math.floor(recipe.cookingTime * 0.6),
+        cookTime: Math.floor(recipe.cookingTime * 0.4),
+        totalTime: recipe.cookingTime,
+        servings: recipe.servings,
+        difficulty: recipe.difficulty,
+        ingredients: [],
+        method: [],
+        nutrition: {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          fiber: 0,
+          sugar: 0
+        },
+        language: 'English',
+        translations: {},
+        createdAt: new Date(),
+        views: recipe.views,
+        cookingTime: recipe.cookingTime
+      })) as Recipe[]
       setRecipes(data)
       setError(null)
     } catch (err) {
