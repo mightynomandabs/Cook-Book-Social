@@ -1,12 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { signInWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if this is an OAuth callback
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      // Check if URL has hash (OAuth callback)
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        console.log('🔍 OAuth callback detected in Login component');
+        
+        try {
+          // Get the session
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error('OAuth callback error:', error);
+            return;
+          }
+
+          if (session?.user) {
+            console.log('✅ User authenticated, checking profile...');
+            
+            // Check if user profile exists
+            const { data: existingUser, error: profileError } = await supabase
+              .from('users')
+              .select('id')
+              .eq('id', session.user.id)
+              .single();
+
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.error('Error checking user profile:', profileError);
+            }
+
+            if (existingUser) {
+              console.log('✅ User profile exists, redirecting to /feed');
+              navigate('/feed');
+            } else {
+              console.log('🆕 New user, redirecting to /onboarding');
+              navigate('/onboarding');
+            }
+          }
+        } catch (error) {
+          console.error('Error handling OAuth callback:', error);
+        }
+      }
+    };
+
+    handleOAuthCallback();
+  }, [navigate]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
