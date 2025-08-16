@@ -6,9 +6,15 @@ const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('🔍 AuthCallback component mounted');
+    
     const handleAuthCallback = async () => {
       try {
+        console.log('🔄 Getting Supabase session...');
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        console.log('📊 Session data:', session);
+        console.log('❌ Error if any:', error);
         
         if (error) {
           console.error('Auth callback error:', error);
@@ -30,13 +36,15 @@ const AuthCallback: React.FC = () => {
               console.error('Error checking user profile:', error);
             }
 
-                         if (existingUser) {
-               // User profile exists, redirect to feed
-               window.location.href = '/feed';
-             } else {
-               // User profile doesn't exist, redirect to onboarding
-               window.location.href = '/onboarding';
-             }
+                                     if (existingUser) {
+              // User profile exists, redirect to feed
+              console.log('✅ User profile exists, redirecting to /feed');
+              window.location.href = '/feed';
+            } else {
+              // User profile doesn't exist, redirect to onboarding
+              console.log('🆕 New user, redirecting to /onboarding');
+              window.location.href = '/onboarding';
+            }
            } catch (profileError) {
              console.error('Error checking user profile:', profileError);
              // If there's an error, redirect to onboarding as fallback
