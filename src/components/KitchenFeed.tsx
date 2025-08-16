@@ -20,39 +20,41 @@ const KitchenFeed: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cookbook-orange to-cookbook-yellow rounded-full flex items-center justify-center">
-              <span className="text-xl">🍳</span>
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
+              <span className="text-2xl">🍳</span>
             </div>
-            <h1 className="text-xl font-bold text-cookbook-black">CookBook</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent">
+              CookBook
+            </h1>
           </div>
           
           <div className="flex items-center space-x-3">
-            <button className="p-2 text-gray-600 hover:text-cookbook-orange transition-colors">
-              <Bell className="w-5 h-5" />
+            <button className="p-3 text-slate-600 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-200">
+              <Bell className="w-6 h-6" />
             </button>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="mt-4 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="mt-6 relative">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search recipes, chefs, or cuisines..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-cookbook-orange focus:border-transparent focus:outline-none"
+            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none transition-all duration-200 text-slate-700 placeholder-slate-500"
           />
         </div>
 
         {/* Filter Button */}
-        <div className="mt-3 flex justify-between items-center">
+        <div className="mt-4 flex justify-between items-center">
           <FilterButton onClick={() => setShowFilters(!showFilters)} />
-          <div className="text-sm text-gray-500">
-            Showing <span className="font-semibold text-cookbook-orange">trending</span> recipes
+          <div className="text-sm text-slate-600">
+            Showing <span className="font-semibold text-orange-500">trending</span> recipes
           </div>
         </div>
       </div>
