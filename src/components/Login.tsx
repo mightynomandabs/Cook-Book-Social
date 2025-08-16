@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Camera } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
