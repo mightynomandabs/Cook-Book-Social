@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Bell } from 'lucide-react';
+import { Search, Filter, Bell, Grid, Video } from 'lucide-react';
 import FeaturedStories from './FeaturedStories';
 import OptimizedRecipeFeed from './OptimizedRecipeFeed';
+import TikTokStyleFeed from './TikTokStyleFeed';
 import FilterButton from './FilterButton';
 import SkeletonLoader from './SkeletonLoader';
 import PullToRefresh from './PullToRefresh';
@@ -14,6 +15,7 @@ const KitchenFeed: React.FC = () => {
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'reels'>('reels'); // Default to reels
   const { recipes, stories, loading, error, searchRecipes, filterRecipesByCuisine } = useSupabaseData();
 
   // Handle search
@@ -70,13 +72,42 @@ const KitchenFeed: React.FC = () => {
           />
         </div>
 
-        {/* Filter Button */}
-        <div className="mt-4 flex justify-between items-center">
-          <FilterButton onClick={() => setShowFilters(!showFilters)} />
-          <div className="text-sm text-slate-600 dark:text-slate-400">
-            Showing <span className="font-semibold text-orange-500">trending</span> recipes
-          </div>
-        </div>
+                         {/* View Mode Toggle & Filter Button */}
+                 <div className="mt-4 flex justify-between items-center">
+                   <div className="flex items-center space-x-2">
+                     <FilterButton onClick={() => setShowFilters(!showFilters)} />
+                     
+                     {/* View Mode Toggle */}
+                     <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 rounded-2xl p-1">
+                       <button
+                         onClick={() => setViewMode('reels')}
+                         className={`p-2 rounded-xl transition-all duration-200 ${
+                           viewMode === 'reels'
+                             ? 'bg-white dark:bg-slate-700 text-orange-500 shadow-sm'
+                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                         }`}
+                       >
+                         <Video size={20} />
+                       </button>
+                       <button
+                         onClick={() => setViewMode('grid')}
+                         className={`p-2 rounded-xl transition-all duration-200 ${
+                           viewMode === 'grid'
+                             ? 'bg-white dark:bg-slate-700 text-orange-500 shadow-sm'
+                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                         }`}
+                       >
+                         <Grid size={20} />
+                       </button>
+                     </div>
+                   </div>
+                   
+                   <div className="text-sm text-slate-600 dark:text-slate-400">
+                     {viewMode === 'reels' ? 'Recipe Reels' : 'Showing'} <span className="font-semibold text-orange-500">
+                       {viewMode === 'reels' ? 'TikTok Style' : 'trending'}
+                     </span> {viewMode === 'reels' ? '' : 'recipes'}
+                   </div>
+                 </div>
         </div>
 
       {/* Loading State */}
@@ -108,15 +139,25 @@ const KitchenFeed: React.FC = () => {
         </div>
       )}
 
-                     {/* Recipe Feed */}
+                                    {/* Recipe Feed - TikTok Style or Grid */}
                {!loading && !error && (
                  <div className="flex-1">
-                   <OptimizedRecipeFeed 
-                     recipes={recipes} 
-                     searchQuery={searchQuery} 
-                     showFilters={showFilters}
-                     onFilterByCuisine={filterRecipesByCuisine}
-                   />
+                   {viewMode === 'reels' ? (
+                     <TikTokStyleFeed
+                       recipes={recipes}
+                       onLike={(recipeId) => console.log('Liked:', recipeId)}
+                       onSave={(recipeId) => console.log('Saved:', recipeId)}
+                       onShare={(recipe) => console.log('Shared:', recipe.title)}
+                       onComment={(recipeId) => console.log('Comment on:', recipeId)}
+                     />
+                   ) : (
+                     <OptimizedRecipeFeed
+                       recipes={recipes}
+                       searchQuery={searchQuery}
+                       showFilters={showFilters}
+                       onFilterByCuisine={filterRecipesByCuisine}
+                     />
+                   )}
                  </div>
                )}
 
