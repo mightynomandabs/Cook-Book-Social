@@ -30,21 +30,21 @@ const AuthCallback: React.FC = () => {
               console.error('Error checking user profile:', error);
             }
 
-            if (existingUser) {
-              // User profile exists, redirect to feed
-              window.location.href = 'https://cook-book-social.vercel.app/feed';
-            } else {
-              // User profile doesn't exist, redirect to onboarding
-              window.location.href = 'https://cook-book-social.vercel.app/onboarding';
-            }
-          } catch (profileError) {
-            console.error('Error checking user profile:', profileError);
-            // If there's an error, redirect to onboarding as fallback
-            window.location.href = 'https://cook-book-social.vercel.app/onboarding';
-          }
-        } else {
-          window.location.href = 'https://cook-book-social.vercel.app/';
-        }
+                         if (existingUser) {
+               // User profile exists, redirect to feed
+               window.location.href = '/feed';
+             } else {
+               // User profile doesn't exist, redirect to onboarding
+               window.location.href = '/onboarding';
+             }
+           } catch (profileError) {
+             console.error('Error checking user profile:', profileError);
+             // If there's an error, redirect to onboarding as fallback
+             window.location.href = '/onboarding';
+           }
+         } else {
+           window.location.href = '/';
+         }
       } catch (error) {
         console.error('Error handling auth callback:', error);
         navigate('/');
