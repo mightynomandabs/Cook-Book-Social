@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Bell } from 'lucide-react';
 import FeaturedStories from './FeaturedStories';
 import RecipeFeed from './RecipeFeed';
 import FilterButton from './FilterButton';
+import SkeletonLoader from './SkeletonLoader';
+import PullToRefresh from './PullToRefresh';
+import FloatingActionButton from './FloatingActionButton';
 import { useSupabaseData } from '../hooks/useSupabaseData';
 
 const KitchenFeed: React.FC = () => {
+  const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { recipes, stories, loading, error, searchRecipes, filterRecipesByCuisine } = useSupabaseData();
@@ -17,10 +22,19 @@ const KitchenFeed: React.FC = () => {
     }
   }, [searchQuery, searchRecipes]);
 
+  // Handle refresh
+  const handleRefresh = async () => {
+    // Simulate refresh delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // You can add actual refresh logic here
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 shadow-sm">
+      <PullToRefresh onRefresh={handleRefresh}>
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25 overflow-hidden">
@@ -103,6 +117,14 @@ const KitchenFeed: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Floating Action Button */}
+      <FloatingActionButton
+        onMainAction={() => navigate('/create')}
+        onCameraAction={() => navigate('/create?mode=camera')}
+        onEditAction={() => navigate('/create?mode=edit')}
+      />
+        </PullToRefresh>
     </div>
   );
 };
