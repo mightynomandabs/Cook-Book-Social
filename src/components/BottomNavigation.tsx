@@ -19,24 +19,24 @@ const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
-      <div className="flex items-center justify-around px-2 py-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-20 shadow-lg shadow-slate-200/50">
+      <div className="flex items-center justify-around px-4 py-3">
         {navItems.map((item) => (
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center py-2 px-3 rounded-2xl transition-all duration-300 ${
               item.isSpecial
-                ? 'bg-gradient-to-r from-cookbook-orange to-cookbook-yellow text-white transform -translate-y-3 shadow-lg'
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white transform -translate-y-4 shadow-xl shadow-orange-500/25'
                 : isActive(item.path)
-                ? 'text-cookbook-orange'
-                : 'text-gray-500 hover:text-cookbook-orange'
+                ? 'text-orange-500 bg-orange-50'
+                : 'text-slate-500 hover:text-orange-500 hover:bg-slate-50'
             }`}
           >
-            <div className={`${item.isSpecial ? 'w-12 h-12' : 'w-6 h-6'} flex items-center justify-center`}>
-              <item.icon className={item.isSpecial ? 'w-7 h-7' : 'w-6 h-6'} />
+            <div className={`${item.isSpecial ? 'w-14 h-14' : 'w-6 h-6'} flex items-center justify-center`}>
+              <item.icon className={item.isSpecial ? 'w-8 h-8' : 'w-6 h-6'} />
             </div>
-            <span className={`text-xs mt-1 font-medium ${item.isSpecial ? 'text-white' : ''}`}>
+            <span className={`text-xs mt-1 font-semibold ${item.isSpecial ? 'text-white' : ''}`}>
               {item.label}
             </span>
           </button>

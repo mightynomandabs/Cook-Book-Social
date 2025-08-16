@@ -23,8 +23,12 @@ const KitchenFeed: React.FC = () => {
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
-              <span className="text-2xl">🍳</span>
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25 overflow-hidden">
+              <img 
+                src="/cookbook-logo.png" 
+                alt="CookBook Logo" 
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent">
               CookBook

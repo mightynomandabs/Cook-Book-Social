@@ -83,8 +83,12 @@ const Login: React.FC = () => {
       
       {/* Header */}
       <div className="relative z-10 text-center pt-24 pb-16">
-        <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-orange-500/25 transform hover:scale-105 transition-all duration-300">
-          <span className="text-6xl">🍳</span>
+        <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-orange-500/25 transform hover:scale-105 transition-all duration-300 overflow-hidden">
+          <img 
+            src="/cookbook-logo.png" 
+            alt="CookBook Logo" 
+            className="w-20 h-20 object-contain"
+          />
         </div>
         <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent mb-4">
           Welcome to CookBook

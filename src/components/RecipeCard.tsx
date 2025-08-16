@@ -29,9 +29,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onLike, onSave }) => {
   };
 
   return (
-    <article className="bg-white rounded-2xl card-shadow overflow-hidden">
+    <article className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 border border-slate-100">
       {/* Hero Image */}
-      <div className="relative h-48 bg-gradient-to-br from-cookbook-orange/20 to-cookbook-yellow/20">
+      <div className="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200">
         {recipe.image ? (
           <img
             src={recipe.image}
@@ -39,29 +39,29 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onLike, onSave }) => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl">
+          <div className="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-orange-100 to-red-100">
             🍽️
           </div>
         )}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-4 right-4">
           <button
             onClick={handleSave}
-            className={`p-2 rounded-full transition-colors ${
+            className={`p-3 rounded-2xl transition-all duration-200 ${
               isSaved 
-                ? 'bg-cookbook-yellow text-cookbook-black' 
-                : 'bg-white/80 text-cookbook-black hover:bg-white'
+                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25' 
+                : 'bg-white/90 text-slate-700 hover:bg-white hover:shadow-lg backdrop-blur-sm'
             }`}
           >
-            <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+            <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-6 space-y-4">
         {/* Creator Info */}
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-cookbook-orange/10 flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
             {recipe.creator.avatar ? (
               <img
                 src={recipe.creator.avatar}
@@ -69,19 +69,19 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onLike, onSave }) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-lg">👨‍🍳</span>
+              <span className="text-xl">👨‍🍳</span>
             )}
           </div>
           <div>
-            <p className="font-medium text-cookbook-black text-sm">
+            <p className="font-semibold text-slate-800 text-sm">
               {recipe.creator.name}
             </p>
-            <p className="text-xs text-gray-500">2 hours ago</p>
+            <p className="text-xs text-slate-500">2 hours ago</p>
           </div>
         </div>
 
         {/* Recipe Title */}
-        <h3 className="text-lg font-bold text-cookbook-black font-poppins leading-tight">
+        <h3 className="text-xl font-bold text-slate-800 leading-tight">
           {recipe.title}
         </h3>
 
@@ -90,7 +90,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onLike, onSave }) => {
           {recipe.tags.map((tag, index) => (
             <span
               key={index}
-              className="px-3 py-1 bg-cookbook-green/10 text-cookbook-green text-xs font-medium rounded-full"
+              className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-medium rounded-xl border border-slate-200"
             >
               {tag}
             </span>
