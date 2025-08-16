@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Upload, ArrowRight, Check } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,6 +16,13 @@ const Onboarding: React.FC = () => {
     interests: [] as string[],
     dietaryPreferences: [] as string[]
   });
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const cuisineOptions = [
     'South Indian', 'North Indian', 'Mughlai', 'Italian', 'Chinese', 
@@ -48,12 +59,63 @@ const Onboarding: React.FC = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < 4) {
       setStep(step + 1);
     } else {
-      // Complete onboarding and navigate to feed
+      // Complete onboarding and save to Supabase
+      await completeOnboarding();
+    }
+  };
+
+  const completeOnboarding = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Upload photo if exists
+      let avatarUrl = null;
+      if (formData.photo) {
+        const fileExt = formData.photo.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, formData.photo);
+        
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        avatarUrl = publicUrl;
+      }
+
+      // Create user profile in users table
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert([{
+          id: user.id,
+          email: user.email || formData.email,
+          name: formData.name,
+          avatar_url: avatarUrl,
+          interests: formData.interests,
+          dietary_preferences: formData.dietaryPreferences,
+          cooking_level: 1,
+          cooking_level_title: 'Beginner',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }]);
+
+      if (profileError) throw profileError;
+
+      // Navigate to feed
       navigate('/feed');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      // You can add error handling UI here
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -218,15 +280,24 @@ const Onboarding: React.FC = () => {
       <div className="px-6 pb-8 pt-6">
         <button
           onClick={handleNext}
-          disabled={!canProceed()}
+          disabled={!canProceed() || loading}
           className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
-            canProceed()
+            canProceed() && !loading
               ? 'bg-gradient-to-r from-cookbook-orange to-cookbook-yellow text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          <span>{step === 4 ? 'Get Started!' : 'Continue'}</span>
-          <ArrowRight className="w-5 h-5" />
+          {loading ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <span>{step === 4 ? 'Get Started!' : 'Continue'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </>
+          )}
         </button>
         
         {step > 1 && (

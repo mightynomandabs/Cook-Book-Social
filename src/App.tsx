@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+import { AuthProvider } from './contexts/AuthContext';
+import Login from './components/Login';
 import Onboarding from './components/Onboarding';
+import AuthCallback from './components/AuthCallback';
 import KitchenFeed from './components/KitchenFeed';
 import RecipeDetail from './components/RecipeDetail';
 import Profile from './components/Profile';
@@ -16,16 +17,19 @@ import DatabaseSetup from './components/DatabaseSetup';
 
 function App() {
   return (
-    <Router>
-      <div className="App font-inter bg-white min-h-screen">
-        <Routes>
-          <Route path="/" element={<Onboarding />} />
-          <Route path="/feed" element={
-            <div className="pb-20">
-              <KitchenFeed />
-              <BottomNavigation />
-            </div>
-          } />
+    <AuthProvider>
+      <Router>
+        <div className="App font-inter bg-white min-h-screen">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/feed" element={
+              <div className="pb-20">
+                <KitchenFeed />
+                <BottomNavigation />
+              </div>
+            } />
           <Route path="/recipe/:id" element={
             <div className="pb-20">
               <RecipeDetail />
@@ -70,10 +74,9 @@ function App() {
           } />
           <Route path="/database-setup" element={<DatabaseSetup />} />
         </Routes>
-        <Analytics />
-        <SpeedInsights />
       </div>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 
