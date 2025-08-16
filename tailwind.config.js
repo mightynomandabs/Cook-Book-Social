@@ -6,13 +6,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'cookbook': {
-          orange: '#FF8800',
-          yellow: '#FFD943',
-          green: '#7CC144',
-          black: '#090909',
-          white: '#FFFFFF'
-        }
+        'cookbook-orange': '#FF8800',
+        'cookbook-yellow': '#FFD943',
+        'cookbook-green': '#7CC144',
+        'cookbook-black': '#090909',
+        'cookbook-white': '#FFFFFF'
       },
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],

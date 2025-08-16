@@ -17,18 +17,29 @@ const AuthCallback: React.FC = () => {
         }
 
         if (session?.user) {
-          // Check if user profile exists in our users table
-          const { data: existingUser } = await supabase
-            .from('users')
-            .select('id')
-            .eq('id', session.user.id)
-            .single();
+          try {
+            // Check if user profile exists in our users table
+            const { data: existingUser, error } = await supabase
+              .from('users')
+              .select('id')
+              .eq('id', session.user.id)
+              .single();
 
-          if (existingUser) {
-            // User profile exists, redirect to feed
-            navigate('/feed');
-          } else {
-            // User profile doesn't exist, redirect to onboarding
+            if (error && error.code !== 'PGRST116') {
+              // PGRST116 means no rows returned, which is expected for new users
+              console.error('Error checking user profile:', error);
+            }
+
+            if (existingUser) {
+              // User profile exists, redirect to feed
+              navigate('/feed');
+            } else {
+              // User profile doesn't exist, redirect to onboarding
+              navigate('/onboarding');
+            }
+          } catch (profileError) {
+            console.error('Error checking user profile:', profileError);
+            // If there's an error, redirect to onboarding as fallback
             navigate('/onboarding');
           }
         } else {

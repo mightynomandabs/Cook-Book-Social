@@ -76,19 +76,25 @@ const Onboarding: React.FC = () => {
       // Upload photo if exists
       let avatarUrl = null;
       if (formData.photo) {
-        const fileExt = formData.photo.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, formData.photo);
-        
-        if (uploadError) throw uploadError;
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(fileName);
-        
-        avatarUrl = publicUrl;
+        try {
+          const fileExt = formData.photo.name.split('.').pop();
+          const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, formData.photo);
+          
+          if (uploadError) {
+            console.warn('Photo upload failed, continuing without photo:', uploadError);
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(fileName);
+            
+            avatarUrl = publicUrl;
+          }
+        } catch (uploadError) {
+          console.warn('Photo upload failed, continuing without photo:', uploadError);
+        }
       }
 
       // Create user profile in users table
@@ -122,7 +128,7 @@ const Onboarding: React.FC = () => {
   const canProceed = () => {
     switch (step) {
       case 1: return formData.name && formData.email;
-      case 2: return formData.photo;
+      case 2: return true; // Photo is optional
       case 3: return formData.interests.length > 0;
       case 4: return formData.dietaryPreferences.length > 0;
       default: return false;
