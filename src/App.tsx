@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Login from './components/Login';
 import Onboarding from './components/Onboarding';
 import AuthCallback from './components/AuthCallback';
@@ -17,9 +18,10 @@ import DatabaseSetup from './components/DatabaseSetup';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App font-inter bg-white min-h-screen">
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App font-inter bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300">
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
@@ -75,9 +77,10 @@ function App() {
           } />
           <Route path="/database-setup" element={<DatabaseSetup />} />
         </Routes>
-      </div>
+              </div>
       </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

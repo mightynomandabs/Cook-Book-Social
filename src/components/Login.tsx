@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import ThemeToggle from './ThemeToggle';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -77,9 +78,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 relative overflow-hidden transition-colors duration-300">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 via-blue-100/30 to-indigo-100/50"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 via-blue-100/30 to-indigo-100/50 dark:from-slate-800/50 dark:via-slate-700/30 dark:to-slate-800/50"></div>
+      
+      {/* Theme Toggle */}
+      <div className="absolute top-6 right-6 z-20">
+        <ThemeToggle />
+      </div>
       
       {/* Header */}
       <div className="relative z-10 text-center pt-24 pb-16">
@@ -90,10 +96,10 @@ const Login: React.FC = () => {
             className="w-20 h-20 object-contain"
           />
         </div>
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent mb-4">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent mb-4">
           Welcome to CookBook
         </h1>
-        <p className="text-xl text-slate-600 font-medium">India's premier culinary social platform</p>
+        <p className="text-xl text-slate-600 dark:text-slate-300 font-medium">India's premier culinary social platform</p>
       </div>
 
       {/* Login Options */}
@@ -103,14 +109,14 @@ const Login: React.FC = () => {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className={`w-full py-5 px-6 bg-white border border-slate-200 rounded-2xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-3 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transform hover:-translate-y-1 ${
+            className={`w-full py-5 px-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-3 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transform hover:-translate-y-1 ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isLoading ? (
               <>
                 <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-3"></div>
-                <span className="text-slate-700">Signing in...</span>
+                <span className="text-slate-700 dark:text-slate-200">Signing in...</span>
               </>
             ) : (
               <>
@@ -120,7 +126,7 @@ const Login: React.FC = () => {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span className="text-slate-700">Continue with Google</span>
+                                 <span className="text-slate-700 dark:text-slate-200">Continue with Google</span>
               </>
             )}
           </button>
