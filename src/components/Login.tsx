@@ -13,9 +13,16 @@ const Login: React.FC = () => {
     setError(null);
     try {
       await signInWithGoogle();
-    } catch (error) {
+      // If successful, the user will be redirected by Supabase
+    } catch (error: any) {
       console.error('Google sign-in failed:', error);
-      setError('Google sign-in failed. Please try again.');
+      if (error.message?.includes('redirect_uri_mismatch')) {
+        setError('OAuth configuration error. Please contact support.');
+      } else if (error.message?.includes('popup_closed')) {
+        setError('Sign-in was cancelled. Please try again.');
+      } else {
+        setError(`Sign-in failed: ${error.message || 'Unknown error'}`);
+      }
     } finally {
       setIsLoading(false);
     }
