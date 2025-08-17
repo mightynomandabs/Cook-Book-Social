@@ -13,49 +13,121 @@ export const useSupabaseData = () => {
   const fetchRecipes = async (limit = 20, offset = 0) => {
     try {
       setLoading(true)
-      // For now, use sample data instead of Supabase
-      // const data = await supabaseHelpers.getRecipes(limit, offset)
-      const data = sampleRecipes.slice(offset, offset + limit).map(recipe => ({
+      const { data, error } = await supabase
+        .from('recipes')
+        .select(`
+          *,
+          creator:users(id, name, avatar_url, cooking_level_title),
+          ingredients:ingredients(*),
+          method_steps:method_steps(*)
+        `)
+        .range(offset, offset + limit - 1)
+        .order('created_at', { ascending: false })
+        .eq('is_published', true)
+      
+      if (error) throw error
+      
+      // Transform data to match Recipe interface
+      const transformedRecipes = data?.map(recipe => ({
         id: recipe.id,
         title: recipe.title,
         description: recipe.description,
         creator: {
-          id: recipe.creator.name.toLowerCase().replace(/\s+/g, '-'),
-          name: recipe.creator.name,
-          email: `${recipe.creator.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-          avatar: recipe.creator.avatar || '',
-          bio: `Professional chef specializing in ${recipe.tags[0] || 'international'} cuisine`,
+          id: recipe.creator?.id || 'unknown',
+          name: recipe.creator?.name || 'Unknown Chef',
+          email: `${recipe.creator?.name?.toLowerCase().replace(/\s+/g, '.')}@example.com` || 'unknown@example.com',
+          avatar: recipe.creator?.avatar_url || '',
+          bio: `Professional chef specializing in ${recipe.cuisine || 'international'} cuisine`,
           cookingLevel: 5,
-          cookingLevelTitle: 'Expert',
+          cookingLevelTitle: recipe.creator?.cooking_level_title || 'Expert',
           badges: [],
           followers: Math.floor(Math.random() * 1000) + 100,
           following: Math.floor(Math.random() * 500) + 50,
           posts: Math.floor(Math.random() * 100) + 10,
           savedRecipes: [],
-          interests: recipe.tags,
+          interests: recipe.tags || [],
           dietaryPreferences: ['Vegetarian', 'Non-Vegetarian'],
           preferredLanguages: ['English'],
           location: 'India',
           isRestaurant: false
         },
-        image: recipe.image || '',
-        video: undefined,
+        image: recipe.image_url || '',
+        video: recipe.video_url,
+        teaser: recipe.description?.substring(0, 100) || '',
+        likes: recipe.likes_count || 0,
+        comments: recipe.comments_count || 0,
+        saves: recipe.saves_count || 0,
+        isSaved: false,
+        isLiked: false,
+        tags: recipe.tags || [],
+        cuisine: recipe.cuisine || 'International',
+        dietaryTags: (recipe.tags || []).filter((tag: string) => ['Vegetarian', 'Vegan', 'Gluten-Free'].includes(tag)),
+        prepTime: recipe.prep_time || 0,
+        cookTime: recipe.cook_time || 0,
+        totalTime: (recipe.prep_time || 0) + (recipe.cook_time || 0),
+        servings: recipe.servings || 1,
+        difficulty: recipe.difficulty || 'Easy',
+        ingredients: recipe.ingredients?.map((ing: any) => ({
+          id: ing.id,
+          name: ing.name,
+          amount: 1,
+          unit: 'piece',
+          price: 0,
+          suppliers: [],
+          isAvailable: true,
+          userHas: false
+        })) || [],
+        method: recipe.method_steps?.map((step: any) => ({
+          id: step.id,
+          stepNumber: step.step_number,
+          description: step.description,
+          image: undefined,
+          time: 0,
+          tips: undefined
+        })) || [],
+        nutrition: {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          fiber: 0,
+          sugar: 0
+        },
+        language: recipe.language || 'English',
+        translations: {},
+        createdAt: new Date(recipe.created_at),
+        views: recipe.views_count || 0,
+        cookingTime: (recipe.prep_time || 0) + (recipe.cook_time || 0)
+      })) || []
+      
+      setRecipes(transformedRecipes)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch recipes')
+      console.error('Error fetching recipes:', err)
+      // Fallback to sample data if Supabase fails
+      setRecipes(sampleRecipes.slice(offset, offset + limit).map(recipe => ({
+        id: recipe.id,
+        title: recipe.title,
+        description: recipe.description,
+        creator: recipe.creator,
+        image: recipe.image,
+        video: recipe.video,
         teaser: recipe.description.substring(0, 100),
         likes: recipe.likes,
-        comments: 0,
-        saves: 0,
+        comments: recipe.comments,
+        saves: recipe.saves,
         isSaved: false,
         isLiked: false,
         tags: recipe.tags,
-        cuisine: recipe.tags[0] || 'International',
+        cuisine: recipe.cuisine,
         dietaryTags: recipe.tags.filter(tag => ['Vegetarian', 'Vegan', 'Gluten-Free'].includes(tag)),
-        prepTime: Math.floor(recipe.cookingTime * 0.6),
-        cookTime: Math.floor(recipe.cookingTime * 0.4),
-        totalTime: recipe.cookingTime,
+        prepTime: recipe.prepTime,
+        cookTime: recipe.cookTime,
+        totalTime: recipe.prepTime + recipe.cookTime,
         servings: recipe.servings,
         difficulty: recipe.difficulty,
-        ingredients: [],
-        method: [],
+        ingredients: recipe.ingredients,
+        method: recipe.method,
         nutrition: {
           calories: 0,
           protein: 0,
@@ -69,12 +141,7 @@ export const useSupabaseData = () => {
         createdAt: new Date(),
         views: recipe.views,
         cookingTime: recipe.cookingTime
-      })) as Recipe[]
-      setRecipes(data)
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch recipes')
-      console.error('Error fetching recipes:', err)
+      })))
     } finally {
       setLoading(false)
     }
@@ -83,15 +150,53 @@ export const useSupabaseData = () => {
   // Fetch stories from Supabase
   const fetchStories = async () => {
     try {
-      setLoading(true)
-      const data = await supabaseHelpers.getStories()
-      setStories(data)
-      setError(null)
+      const { data, error } = await supabase
+        .from('stories')
+        .select(`
+          *,
+          creator:users(id, name, avatar_url, cooking_level_title)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      
+      if (error) throw error
+      
+      // Transform data to match Story interface
+      const transformedStories = data?.map(story => ({
+        id: story.id,
+        user: {
+          id: story.creator?.id || 'unknown',
+          name: story.creator?.name || 'Unknown Chef',
+          email: `${story.creator?.name?.toLowerCase().replace(/\s+/g, '.')}@example.com` || 'unknown@example.com',
+          avatar: story.creator?.avatar_url || '',
+          bio: `Professional chef specializing in ${story.cuisine || 'international'} cuisine`,
+          cookingLevel: 5,
+          cookingLevelTitle: story.creator?.cooking_level_title || 'Expert',
+          badges: [],
+          followers: Math.floor(Math.random() * 1000) + 100,
+          following: Math.floor(Math.random() * 500) + 50,
+          posts: Math.floor(Math.random() * 100) + 10,
+          savedRecipes: [],
+          interests: [],
+          dietaryPreferences: ['Vegetarian', 'Non-Vegetarian'],
+          preferredLanguages: ['English'],
+          location: 'India',
+          isRestaurant: false
+        },
+        image: story.image_url || '',
+        video: story.video_url,
+        caption: story.description || '',
+        createdAt: new Date(story.created_at),
+        views: story.views_count || 0,
+        isViewed: false
+      })) || []
+      
+      setStories(transformedStories)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch stories')
       console.error('Error fetching stories:', err)
-    } finally {
-      setLoading(false)
+      // Fallback to empty array if Supabase fails
+      setStories([])
     }
   }
 
@@ -211,21 +316,24 @@ export const useSupabaseData = () => {
     }
   }
 
-  // Initialize data on component mount
+  // Fetch initial data when hook is initialized
   useEffect(() => {
     const initializeData = async () => {
       try {
+        setLoading(true)
         await Promise.all([
           fetchRecipes(),
           fetchStories()
         ])
       } catch (err) {
         console.error('Error initializing data:', err)
+      } finally {
+        setLoading(false)
       }
     }
 
     initializeData()
-  }, [])
+  }, []) // Empty dependency array means this runs once on mount
 
   return {
     // Data

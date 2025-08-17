@@ -10,6 +10,7 @@ export const TABLES = {
   USERS: 'users',
   RECIPES: 'recipes',
   INGREDIENTS: 'ingredients',
+  METHOD_STEPS: 'method_steps',
   STORIES: 'stories',
   COMMENTS: 'comments',
   LIKES: 'likes',
