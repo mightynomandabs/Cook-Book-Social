@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://cxkllgtahdbrkkgphqql.supabase.co/auth/v1/callback'
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
       if (error) throw error;
