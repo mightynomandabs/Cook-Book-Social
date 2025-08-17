@@ -15,10 +15,10 @@ import Login from './components/Login';
 import AuthCallback from './components/AuthCallback';
 import DatabaseSetup from './components/DatabaseSetup';
 import RecipeCreate from './components/RecipeCreate';
-import CreatorDashboard from './components/CreatorDashboard';
-import ContentManager from './components/ContentManager';
-import MonetizationTools from './components/MonetizationTools';
-import CreatorProfile from './components/CreatorProfile';
+// import CreatorDashboard from './components/CreatorDashboard';
+// import ContentManager from './components/ContentManager';
+// import MonetizationTools from './components/MonetizationTools';
+// import CreatorProfile from './components/CreatorProfile';
 import BottomNavigation from './components/BottomNavigation';
 
 function App() {
@@ -98,8 +98,8 @@ function App() {
                 </div>
               } />
               
-              {/* Creator Tools Routes */}
-              <Route path="/creator/dashboard" element={
+              {/* Creator Tools Routes - Temporarily Commented Out */}
+              {/* <Route path="/creator/dashboard" element={
                 <div className="pb-20">
                   <CreatorDashboard />
                   <BottomNavigation />
@@ -125,7 +125,7 @@ function App() {
                   <CreatorProfile />
                   <BottomNavigation />
                 </div>
-              } />
+              } /> */}
             </Routes>
           </div>
         </Router>
