@@ -15,6 +15,7 @@ import Login from './components/Login';
 import AuthCallback from './components/AuthCallback';
 import DatabaseSetup from './components/DatabaseSetup';
 import RecipeCreate from './components/RecipeCreate';
+import DesignSystemDemo from './components/DesignSystemDemo';
 // import CreatorDashboard from './components/CreatorDashboard';
 // import ContentManager from './components/ContentManager';
 // import MonetizationTools from './components/MonetizationTools';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/database-setup" element={<DatabaseSetup />} />
+              <Route path="/design-system" element={<DesignSystemDemo />} />
               
               {/* Main App Routes */}
               <Route path="/feed" element={
