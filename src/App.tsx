@@ -29,8 +29,8 @@ function App() {
           <div className="App font-inter bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300">
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Onboarding />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Login />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/database-setup" element={<DatabaseSetup />} />
               
