@@ -6,7 +6,8 @@
   NODE_VERSION = "18"
   CI = "false"
   GENERATE_SOURCEMAP = "false"
-  NPM_FLAGS = "--no-audit --no-fund --silent"
+  NPM_FLAGS = "--legacy-peer-deps --no-audit --no-fund --silent"
+  NPM_CONFIG_PRODUCTION = "false"
 
 [[redirects]]
   from = "/*"

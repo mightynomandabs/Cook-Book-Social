@@ -22,7 +22,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   size = 'md' 
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const heartRef = useRef<HTMLDivElement>(null);
+  const heartRef = useRef<HTMLButtonElement>(null);
 
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -87,7 +87,11 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
         opacity: 0,
         duration: 0.8 + Math.random() * 0.4,
         ease: "power2.out",
-        onComplete: () => document.body.removeChild(heart)
+        onComplete: () => {
+          if (heart && heart.parentNode) {
+            heart.parentNode.removeChild(heart);
+          }
+        }
       });
     }
   };
@@ -131,7 +135,7 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
   size = 'md' 
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const bookmarkRef = useRef<HTMLDivElement>(null);
+  const bookmarkRef = useRef<HTMLButtonElement>(null);
 
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -188,7 +192,11 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
         opacity: 0,
         duration: 0.3,
         ease: "power2.in",
-        onComplete: () => document.body.removeChild(toast)
+        onComplete: () => {
+          if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }
       });
     }, 2000);
   };
@@ -218,14 +226,14 @@ interface ProgressBarProps {
   progress: number; // 0-100
   height?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
-  animated?: boolean;
+  isAnimated?: boolean;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ 
   progress, 
   height = 'md', 
   showLabel = true,
-  animated = true
+  isAnimated = true
 }) => {
   const heightClasses = {
     sm: 'h-2',
@@ -235,7 +243,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const progressSpring = useSpring({
     width: `${progress}%`,
-    config: animated ? config.wobbly : config.default
+    config: isAnimated ? config.wobbly : config.default
   });
 
   return (

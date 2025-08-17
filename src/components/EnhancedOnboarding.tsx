@@ -414,9 +414,14 @@ export const EnhancedOnboarding: React.FC<EnhancedOnboardingProps> = ({
     if (!isValid) {
       // Show error animation
       gsap.to(containerRef.current, {
-        x: [-10, 10, -10, 10, 0],
-        duration: 0.5,
-        ease: "power2.out"
+        x: -10,
+        duration: 0.1,
+        ease: "power2.out",
+        yoyo: true,
+        repeat: 4,
+        onComplete: () => {
+          gsap.set(containerRef.current, { x: 0 });
+        }
       });
       return;
     }
@@ -466,12 +471,12 @@ export const EnhancedOnboarding: React.FC<EnhancedOnboardingProps> = ({
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <ProgressBar 
-            progress={progress} 
-            height="sm" 
-            showLabel={false}
-            animated={true}
-          />
+                      <ProgressBar 
+              progress={progress} 
+              height="sm" 
+              showLabel={false}
+              isAnimated={true}
+            />
         </div>
 
         {/* Step Indicator */}

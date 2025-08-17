@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Heart, Bookmark, MessageCircle, Share2, ChefHat, ShoppingCart, Sparkles } from 'lucide-react';
 import { LiquidFill } from './WebGLMotionSystem';
+import { Recipe as SharedRecipe } from '../types';
 
-interface Recipe {
+// Local interface for RecipeReel component
+interface RecipeReelRecipe {
   id: string;
   title: string;
   creator: {
@@ -27,7 +29,7 @@ interface Recipe {
 }
 
 interface RecipeReelProps {
-  recipes: Recipe[];
+  recipes: RecipeReelRecipe[];
   onLike?: (recipeId: string) => void;
   onSave?: (recipeId: string) => void;
   onComment?: (recipeId: string) => void;

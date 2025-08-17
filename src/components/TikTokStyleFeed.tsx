@@ -1,9 +1,33 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, Home, Search, Plus, Heart, User } from 'lucide-react';
-import RecipeReel from './RecipeReel';
+import { RecipeReel } from './RecipeReel';
 import { Recipe } from '../types';
 import { useHapticFeedback } from '../hooks/useHapticFeedback';
+
+// Local interface for RecipeReel component
+interface RecipeReelRecipe {
+  id: string;
+  title: string;
+  creator: {
+    name: string;
+    avatar: string;
+    verified: boolean;
+  };
+  video: string;
+  thumbnail: string;
+  duration: number;
+  likes: number;
+  saves: number;
+  comments: number;
+  shares: number;
+  ingredients: string[];
+  steps: string[];
+  tags: string[];
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  timeToCook: string;
+  cuisine: string;
+}
 
 interface TikTokStyleFeedProps {
   recipes: Recipe[];
@@ -24,6 +48,30 @@ const TikTokStyleFeed: React.FC<TikTokStyleFeedProps> = ({
   const [isScrolling, setIsScrolling] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { hapticMedium } = useHapticFeedback();
+
+  // Map shared Recipe to RecipeReel format
+  const mapToRecipeReelFormat = (recipe: Recipe): RecipeReelRecipe => ({
+    id: recipe.id,
+    title: recipe.title,
+    creator: {
+      name: recipe.creator.name,
+      avatar: recipe.creator.avatar,
+      verified: false // Default value since shared type doesn't have this
+    },
+    video: recipe.video || '',
+    thumbnail: recipe.image,
+    duration: 0, // Default value since shared type doesn't have this
+    likes: recipe.likes,
+    saves: recipe.saves,
+    comments: recipe.comments,
+    shares: 0, // Default value since shared type doesn't have this
+    ingredients: recipe.ingredients.map(ing => ing.name),
+    steps: recipe.method.map(step => step.description),
+    tags: recipe.tags,
+    difficulty: recipe.difficulty,
+    timeToCook: `${recipe.cookTime} min`,
+    cuisine: recipe.cuisine
+  });
 
   // Handle next recipe
   const handleNext = useCallback(() => {
@@ -155,12 +203,13 @@ const TikTokStyleFeed: React.FC<TikTokStyleFeedProps> = ({
           transition={{ duration: 0.3, ease: 'easeInOut' }}
         >
           <RecipeReel
-            recipe={currentRecipe}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
+            recipes={recipes.map(mapToRecipeReelFormat)}
             onLike={onLike}
             onSave={onSave}
-            onShare={onShare}
+            onShare={(recipeId) => {
+              const recipe = recipes.find(r => r.id === recipeId);
+              if (recipe) onShare?.(recipe);
+            }}
             onComment={onComment}
           />
         </motion.div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Trophy, Star, Target, Zap, Crown, Award, TrendingUp } from 'lucide-react';
+import { Flame, Trophy, Star, Target, Zap, Crown, Award, TrendingUp, ChefHat, Heart, Bookmark, MessageCircle } from 'lucide-react';
 import { LiquidFill } from './WebGLMotionSystem';
 
 interface Badge {

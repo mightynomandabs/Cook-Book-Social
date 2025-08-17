@@ -155,7 +155,11 @@ export const EnhancedRecipeReel: React.FC<EnhancedRecipeReelProps> = ({
         opacity: 0,
         duration: 0.3,
         ease: "power2.in",
-        onComplete: () => document.body.removeChild(levelUpElement)
+        onComplete: () => {
+          if (levelUpElement && levelUpElement.parentNode) {
+            levelUpElement.parentNode.removeChild(levelUpElement);
+          }
+        }
       });
     }, 2000);
   };
