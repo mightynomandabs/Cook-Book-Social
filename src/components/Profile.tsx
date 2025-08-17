@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Settings, Edit, Flame, MapPin, Mail, Phone, Globe, Camera, Heart, Bookmark, Share2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Settings, Edit, Flame, MapPin, Mail, Phone, Globe, Camera, Heart, Bookmark, Share2, BarChart3, DollarSign, Plus } from 'lucide-react';
 import { sampleUser } from '../data/sampleRecipe';
 
 const Profile: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'posts' | 'saved' | 'resume'>('posts');
+  const [showCreatorTools, setShowCreatorTools] = useState(false);
   
   // In a real app, you'd fetch the user by ID
   const user = sampleUser;
@@ -121,6 +123,63 @@ const Profile: React.FC = () => {
                   {badge.name}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Creator Tools Section */}
+          <div className="mb-4">
+            <div className="bg-gradient-to-r from-cookbook-orange/5 to-cookbook-yellow/5 rounded-xl p-4 border border-cookbook-orange/20">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-cookbook-black">Creator Tools</h3>
+                <button
+                  onClick={() => setShowCreatorTools(!showCreatorTools)}
+                  className="flex items-center space-x-2 px-3 py-1 bg-cookbook-orange/10 text-cookbook-orange rounded-lg hover:bg-cookbook-orange/20 transition-colors text-sm font-medium"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>{showCreatorTools ? 'Hide' : 'Show'} Tools</span>
+                </button>
+              </div>
+              
+              {showCreatorTools && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => navigate('/creator/dashboard')}
+                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
+                    >
+                      <BarChart3 className="w-6 h-6 text-cookbook-orange mb-2" />
+                      <span className="text-sm font-medium text-cookbook-orange">Dashboard</span>
+                    </button>
+                    <button
+                      onClick={() => navigate('/creator/content')}
+                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
+                    >
+                      <Plus className="w-6 h-6 text-cookbook-orange mb-2" />
+                      <span className="text-sm font-medium text-cookbook-orange">Content</span>
+                    </button>
+                    <button
+                      onClick={() => navigate('/creator/monetization')}
+                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
+                    >
+                      <DollarSign className="w-6 h-6 text-cookbook-orange mb-2" />
+                      <span className="text-sm font-medium text-cookbook-orange">Earnings</span>
+                    </button>
+                    <button
+                      onClick={() => navigate('/creator/profile')}
+                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
+                    >
+                      <Edit className="w-6 h-6 text-cookbook-orange mb-2" />
+                      <span className="text-sm font-medium text-cookbook-orange">Creator Profile</span>
+                    </button>
+                  </div>
+                  
+                  <div className="text-center pt-2">
+                    <p className="text-xs text-cookbook-orange/70">
+                      🎯 Access creator analytics, content management, and monetization tools
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
