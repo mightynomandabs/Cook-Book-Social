@@ -4,6 +4,19 @@
 -- Note: This schema creates all tables and relationships for the CookBook MVP
 -- RLS policies are set up to allow public read access and user-specific modifications
 
+-- Drop existing tables if they exist (for clean setup)
+DROP TABLE IF EXISTS recipe_views CASCADE;
+DROP TABLE IF EXISTS follows CASCADE;
+DROP TABLE IF EXISTS saves CASCADE;
+DROP TABLE IF EXISTS likes CASCADE;
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS stories CASCADE;
+DROP TABLE IF EXISTS nutrition_info CASCADE;
+DROP TABLE IF EXISTS method_steps CASCADE;
+DROP TABLE IF EXISTS ingredients CASCADE;
+DROP TABLE IF EXISTS recipes CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- Users table
 CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -98,7 +111,7 @@ CREATE TABLE stories (
   video_url TEXT,
   caption TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  views_count INTEGER DEFAULT 0
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Comments table
@@ -106,10 +119,11 @@ CREATE TABLE comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  text TEXT NOT NULL,
+  content TEXT NOT NULL,
   parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,
   likes_count INTEGER DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Likes table
@@ -139,194 +153,448 @@ CREATE TABLE follows (
   UNIQUE(follower_id, following_id)
 );
 
--- MVP: Analytics Events table
-CREATE TABLE analytics_events (
+-- Recipe views table
+CREATE TABLE recipe_views (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  event_type VARCHAR(100) NOT NULL,
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE SET NULL,
-  metadata JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- MVP: Reports table for moderation
-CREATE TABLE reports (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  reporter_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  reported_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE SET NULL,
-  reason VARCHAR(100) NOT NULL,
-  description TEXT,
-  status VARCHAR(50) DEFAULT 'pending',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- MVP: Blocked Users table
-CREATE TABLE blocked_users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  blocked_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  reason TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id, blocked_user_id)
+  viewed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- MVP: Notifications table
-CREATE TABLE notifications (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  type VARCHAR(50) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  message TEXT,
-  data JSONB,
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes for performance
+-- Create indexes for better performance
 CREATE INDEX idx_recipes_creator_id ON recipes(creator_id);
-CREATE INDEX idx_recipes_created_at ON recipes(created_at DESC);
 CREATE INDEX idx_recipes_cuisine ON recipes(cuisine);
+CREATE INDEX idx_recipes_difficulty ON recipes(difficulty);
 CREATE INDEX idx_recipes_tags ON recipes USING GIN(tags);
+CREATE INDEX idx_recipes_created_at ON recipes(created_at DESC);
+CREATE INDEX idx_ingredients_recipe_id ON ingredients(recipe_id);
+CREATE INDEX idx_method_steps_recipe_id ON method_steps(recipe_id);
 CREATE INDEX idx_comments_recipe_id ON comments(recipe_id);
 CREATE INDEX idx_likes_recipe_id ON likes(recipe_id);
-CREATE INDEX idx_saves_user_id ON saves(user_id);
+CREATE INDEX idx_saves_recipe_id ON saves(recipe_id);
 CREATE INDEX idx_follows_follower_id ON follows(follower_id);
 CREATE INDEX idx_follows_following_id ON follows(following_id);
-CREATE INDEX idx_analytics_events_user_id ON analytics_events(user_id);
-CREATE INDEX idx_analytics_events_created_at ON analytics_events(created_at DESC);
-CREATE INDEX idx_reports_reporter_id ON reports(reporter_id);
-CREATE INDEX idx_reports_status ON reports(status);
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 
--- RLS Policies (Development Mode - Allow All)
--- TODO: Update these policies for production
-
--- Users table policies
+-- Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users are viewable by everyone" ON users FOR SELECT USING (true);
-CREATE POLICY "Users can insert their own data" ON users FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can update own data" ON users FOR UPDATE USING (true);
-CREATE POLICY "Users can delete own data" ON users FOR DELETE USING (true);
-
--- Recipes table policies
 ALTER TABLE recipes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Recipes are viewable by everyone" ON recipes FOR SELECT USING (true);
-CREATE POLICY "Users can insert recipes" ON recipes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can update own recipes" ON recipes FOR UPDATE USING (true);
-CREATE POLICY "Users can delete own recipes" ON recipes FOR DELETE USING (true);
-
--- Comments table policies
+ALTER TABLE ingredients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE method_steps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE nutrition_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE stories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Comments are viewable by everyone" ON comments FOR SELECT USING (true);
-CREATE POLICY "Users can insert comments" ON comments FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can update own comments" ON comments FOR UPDATE USING (true);
-CREATE POLICY "Users can delete own comments" ON comments FOR DELETE USING (true);
-
--- Likes table policies
 ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Likes are viewable by everyone" ON likes FOR SELECT USING (true);
-CREATE POLICY "Users can insert likes" ON likes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can delete own likes" ON likes FOR DELETE USING (true);
-
--- Saves table policies
 ALTER TABLE saves ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Saves are viewable by owner" ON saves FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert saves" ON saves FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can delete own saves" ON saves FOR DELETE USING (true);
-
--- Follows table policies
 ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Follows are viewable by everyone" ON follows FOR SELECT USING (true);
-CREATE POLICY "Users can insert follows" ON follows FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can delete own follows" ON follows FOR DELETE USING (true);
+ALTER TABLE recipe_views ENABLE ROW LEVEL SECURITY;
 
--- Analytics events policies
-ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Analytics events are insertable by everyone" ON analytics_events FOR INSERT WITH CHECK (true);
-CREATE POLICY "Analytics events are viewable by admins only" ON analytics_events FOR SELECT USING (false);
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can read all users" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+DROP POLICY IF EXISTS "Recipes are publicly readable" ON recipes;
+DROP POLICY IF EXISTS "Users can create recipes" ON recipes;
+DROP POLICY IF EXISTS "Users can update own recipes" ON recipes;
+DROP POLICY IF EXISTS "Users can delete own recipes" ON recipes;
+DROP POLICY IF EXISTS "Ingredients are publicly readable" ON ingredients;
+DROP POLICY IF EXISTS "Users can manage ingredients for own recipes" ON ingredients;
+DROP POLICY IF EXISTS "Method steps are publicly readable" ON method_steps;
+DROP POLICY IF EXISTS "Users can manage method steps for own recipes" ON method_steps;
+DROP POLICY IF EXISTS "Nutrition info is publicly readable" ON nutrition_info;
+DROP POLICY IF EXISTS "Users can manage nutrition info for own recipes" ON nutrition_info;
+DROP POLICY IF EXISTS "Stories are publicly readable" ON stories;
+DROP POLICY IF EXISTS "Users can manage own stories" ON stories;
+DROP POLICY IF EXISTS "Comments are publicly readable" ON comments;
+DROP POLICY IF EXISTS "Users can create comments" ON comments;
+DROP POLICY IF EXISTS "Users can update own comments" ON comments;
+DROP POLICY IF EXISTS "Users can delete own comments" ON comments;
+DROP POLICY IF EXISTS "Likes are publicly readable" ON likes;
+DROP POLICY IF EXISTS "Users can manage own likes" ON likes;
+DROP POLICY IF EXISTS "Saves are publicly readable" ON saves;
+DROP POLICY IF EXISTS "Users can manage own saves" ON saves;
+DROP POLICY IF EXISTS "Follows are publicly readable" ON follows;
+DROP POLICY IF EXISTS "Users can manage own follows" ON follows;
+DROP POLICY IF EXISTS "Recipe views are publicly readable" ON recipe_views;
+DROP POLICY IF EXISTS "Users can create own recipe views" ON recipe_views;
 
--- Reports policies
-ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can insert reports" ON reports FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users can view own reports" ON reports FOR SELECT USING (auth.uid() = reporter_id);
+-- RLS Policies for public read access and user-specific modifications
+-- Users can read all users
+CREATE POLICY "Users can read all users" ON users FOR SELECT USING (true);
 
--- Blocked users policies
-ALTER TABLE blocked_users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage their own blocks" ON blocked_users FOR ALL USING (auth.uid() = user_id);
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
 
--- Notifications policies
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can view own notifications" ON notifications FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can update own notifications" ON notifications FOR UPDATE USING (auth.uid() = user_id);
+-- Recipes are publicly readable
+CREATE POLICY "Recipes are publicly readable" ON recipes FOR SELECT USING (true);
 
--- Sample data for testing
-INSERT INTO users (id, email, name, avatar_url, bio, interests, dietary_preferences) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'chef.priya@example.com', 'Chef Priya', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'Passionate home chef sharing authentic Indian recipes', ARRAY['Indian', 'Vegetarian', 'Spicy'], ARRAY['Vegetarian']),
-('550e8400-e29b-41d4-a716-446655440002', 'marco.pizza@example.com', 'Pizza Master Marco', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', 'Italian pizza enthusiast and dough master', ARRAY['Italian', 'Pizza', 'Dough'], ARRAY['Non-Vegetarian']),
-('550e8400-e29b-41d4-a716-446655440003', 'sarah.health@example.com', 'Health Coach Sarah', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'Creating healthy, delicious meals for busy lifestyles', ARRAY['Healthy', 'Meal Prep', 'Quick'], ARRAY['Vegetarian', 'Gluten-Free']);
+-- Users can create recipes
+CREATE POLICY "Users can create recipes" ON recipes FOR INSERT WITH CHECK (auth.uid() = creator_id);
 
-INSERT INTO recipes (id, title, description, creator_id, image_url, teaser, cuisine, difficulty, prep_time, cook_time, servings, tags) VALUES
-('660e8400-e29b-41d4-a716-446655440001', 'Spicy Paneer Tikka', 'A delicious vegetarian appetizer with marinated paneer cubes grilled to perfection', '550e8400-e29b-41d4-a716-446655440001', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'Crispy, spicy paneer tikka that will make you forget meat!', 'Indian', 'Medium', 30, 20, 4, ARRAY['Vegetarian', 'Appetizer', 'Spicy', 'Paneer']),
-('660e8400-e29b-41d4-a716-446655440002', 'Classic Margherita Pizza', 'Authentic Neapolitan-style pizza with fresh mozzarella and basil', '550e8400-e29b-41d4-a716-446655440002', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'The perfect pizza - simple, classic, and absolutely delicious', 'Italian', 'Hard', 45, 15, 2, ARRAY['Pizza', 'Italian', 'Cheese', 'Basil']),
-('660e8400-e29b-41d4-a716-446655440003', 'Quinoa Buddha Bowl', 'Nutritious and colorful bowl packed with protein and vegetables', '550e8400-e29b-41d4-a716-446655440003', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'A healthy, protein-rich meal that looks as good as it tastes', 'International', 'Easy', 20, 25, 1, ARRAY['Healthy', 'Quinoa', 'Vegetarian', 'Protein']);
+-- Users can update their own recipes
+CREATE POLICY "Users can update own recipes" ON recipes FOR UPDATE USING (auth.uid() = creator_id);
 
--- Sample ingredients
+-- Users can delete their own recipes
+CREATE POLICY "Users can delete own recipes" ON recipes FOR DELETE USING (auth.uid() = creator_id);
+
+-- Ingredients are publicly readable
+CREATE POLICY "Ingredients are publicly readable" ON ingredients FOR SELECT USING (true);
+
+-- Users can manage ingredients for their recipes
+CREATE POLICY "Users can manage ingredients for own recipes" ON ingredients FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM recipes WHERE recipes.id = ingredients.recipe_id AND recipes.creator_id = auth.uid()
+  )
+);
+
+-- Method steps are publicly readable
+CREATE POLICY "Method steps are publicly readable" ON method_steps FOR SELECT USING (true);
+
+-- Users can manage method steps for their recipes
+CREATE POLICY "Users can manage method steps for own recipes" ON method_steps FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM recipes WHERE recipes.id = method_steps.recipe_id AND recipes.creator_id = auth.uid()
+  )
+);
+
+-- Nutrition info is publicly readable
+CREATE POLICY "Nutrition info is publicly readable" ON nutrition_info FOR SELECT USING (true);
+
+-- Users can manage nutrition info for their recipes
+CREATE POLICY "Users can manage nutrition info for own recipes" ON nutrition_info FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM recipes WHERE recipes.id = nutrition_info.recipe_id AND recipes.creator_id = auth.uid()
+  )
+);
+
+-- Stories are publicly readable
+CREATE POLICY "Stories are publicly readable" ON stories FOR SELECT USING (true);
+
+-- Users can manage their own stories
+CREATE POLICY "Users can manage own stories" ON stories FOR ALL USING (auth.uid() = user_id);
+
+-- Comments are publicly readable
+CREATE POLICY "Comments are publicly readable" ON comments FOR SELECT USING (true);
+
+-- Users can create comments
+CREATE POLICY "Users can create comments" ON comments FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own comments
+CREATE POLICY "Users can update own comments" ON comments FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own comments
+CREATE POLICY "Users can delete own comments" ON comments FOR DELETE USING (auth.uid() = user_id);
+
+-- Likes are publicly readable
+CREATE POLICY "Likes are publicly readable" ON likes FOR SELECT USING (true);
+
+-- Users can manage their own likes
+CREATE POLICY "Users can manage own likes" ON likes FOR ALL USING (auth.uid() = user_id);
+
+-- Saves are publicly readable
+CREATE POLICY "Saves are publicly readable" ON saves FOR SELECT USING (true);
+
+-- Users can manage their own saves
+CREATE POLICY "Users can manage own saves" ON saves FOR ALL USING (auth.uid() = user_id);
+
+-- Follows are publicly readable
+CREATE POLICY "Follows are publicly readable" ON follows FOR SELECT USING (true);
+
+-- Users can manage their own follows
+CREATE POLICY "Users can manage own follows" ON follows FOR ALL USING (auth.uid() = follower_id);
+
+-- Recipe views are publicly readable
+CREATE POLICY "Recipe views are publicly readable" ON recipe_views FOR SELECT USING (true);
+
+-- Users can create their own recipe views
+CREATE POLICY "Users can create own recipe views" ON recipe_views FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Create storage bucket for recipe media (if it doesn't exist)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('recipe-media', 'recipe-media', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop existing storage policies if they exist
+DROP POLICY IF EXISTS "Recipe media is publicly accessible" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload recipe media" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their recipe media" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their recipe media" ON storage.objects;
+
+-- Storage policies for recipe media
+CREATE POLICY "Recipe media is publicly accessible" ON storage.objects FOR SELECT USING (bucket_id = 'recipe-media');
+CREATE POLICY "Users can upload recipe media" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'recipe-media' AND auth.role() = 'authenticated');
+CREATE POLICY "Users can update their recipe media" ON storage.objects FOR UPDATE USING (bucket_id = 'recipe-media' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can delete their recipe media" ON storage.objects FOR DELETE USING (bucket_id = 'recipe-media' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+-- ========================================
+-- SEED DATA FOR MVP
+-- ========================================
+
+-- Insert sample users
+INSERT INTO users (id, email, name, avatar_url, bio, cooking_level, cooking_level_title, followers_count, following_count, posts_count, location, interests, dietary_preferences, preferred_languages) VALUES
+('11111111-1111-1111-1111-111111111111', 'priya@cookbook.com', 'Chef Priya', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150', 'Passionate home chef from Mumbai', 85, 'Master Chef', 15420, 892, 156, 'Mumbai, India', ARRAY['Indian', 'Fusion'], ARRAY['Non-Vegetarian'], ARRAY['English', 'Hindi']),
+('22222222-2222-2222-2222-222222222222', 'marco@cookbook.com', 'Marco Rossi', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', 'Italian chef passionate about authentic recipes', 90, 'Master Chef', 8920, 456, 89, 'Rome, Italy', ARRAY['Italian', 'Mediterranean'], ARRAY['Vegetarian'], ARRAY['English', 'Italian']),
+('33333333-3333-3333-3333-333333333333', 'somchai@cookbook.com', 'Somchai Thai', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150', 'Thai chef bringing authentic flavors to your kitchen', 85, 'Master Chef', 9876, 234, 67, 'Bangkok, Thailand', ARRAY['Thai', 'Southeast Asian'], ARRAY['Vegetarian', 'Non-Vegetarian'], ARRAY['English', 'Thai']),
+('44444444-4444-4444-4444-444444444444', 'marie@cookbook.com', 'Marie Dubois', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150', 'French pastry chef with 20 years of experience', 95, 'Master Chef', 23400, 123, 234, 'Paris, France', ARRAY['French', 'Pastry', 'Baking'], ARRAY['Vegetarian'], ARRAY['English', 'French']),
+('55555555-5555-5555-5555-555555555555', 'carlos@cookbook.com', 'Carlos Mendoza', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150', 'Mexican chef sharing authentic family recipes', 80, 'Expert Chef', 12340, 567, 89, 'Mexico City, Mexico', ARRAY['Mexican', 'Latin American'], ARRAY['Non-Vegetarian'], ARRAY['English', 'Spanish'])
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample recipes
+INSERT INTO recipes (id, title, description, creator_id, image_url, video_url, teaser, likes_count, comments_count, saves_count, views_count, tags, cuisine, dietary_tags, prep_time, cook_time, total_time, servings, difficulty, language) VALUES
+('11111111-1111-1111-1111-111111111111', 'Butter Chicken - The Ultimate Indian Classic', 'Creamy, rich, and perfectly spiced butter chicken that will transport you straight to India. This recipe features tender chicken in a luscious tomato-based gravy.', '11111111-1111-1111-1111-111111111111', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800', 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4', 'Learn the secret to making restaurant-style butter chicken at home!', 1247, 89, 456, 8923, ARRAY['Indian', 'Chicken', 'Creamy', 'Spicy'], 'Indian', ARRAY['Non-Vegetarian'], 20, 25, 45, 4, 'Medium', 'English'),
+('22222222-2222-2222-2222-222222222222', 'Homemade Pizza Margherita', 'Learn to make authentic Italian pizza from scratch with this classic Margherita recipe. Perfect crispy crust, fresh mozzarella, and basil.', '22222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800', 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4', 'Master the art of homemade pizza with this authentic Margherita recipe!', 892, 67, 234, 6541, ARRAY['Italian', 'Pizza', 'Vegetarian', 'Homemade'], 'Italian', ARRAY['Vegetarian'], 30, 30, 60, 2, 'Medium', 'English'),
+('33333333-3333-3333-3333-333333333333', 'Spicy Thai Green Curry', 'Aromatic and flavorful Thai green curry with coconut milk, fresh vegetables, and your choice of protein. Perfect balance of heat and creaminess.', '33333333-3333-3333-3333-333333333333', 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800', NULL, 'Experience authentic Thai flavors with this aromatic green curry!', 1567, 123, 567, 11234, ARRAY['Thai', 'Curry', 'Spicy', 'Coconut'], 'Thai', ARRAY['Vegetarian'], 15, 20, 35, 6, 'Easy', 'English'),
+('44444444-4444-4444-4444-444444444444', 'Classic French Croissants', 'Flaky, buttery croissants that rival any Parisian bakery. This recipe takes time but delivers authentic French pastry perfection.', '44444444-4444-4444-4444-444444444444', 'https://images.unsplash.com/photo-1555507036-ab1f40388010?w=800', NULL, 'Master the art of French pastry with these flaky, buttery croissants!', 2341, 156, 789, 15678, ARRAY['French', 'Pastry', 'Breakfast', 'Buttery'], 'French', ARRAY['Vegetarian'], 45, 25, 70, 8, 'Hard', 'English'),
+('55555555-5555-5555-5555-555555555555', 'Mexican Street Tacos', 'Authentic Mexican street tacos with tender carne asada, fresh cilantro, onions, and lime. Simple yet incredibly flavorful.', '55555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800', NULL, 'Bring the flavors of Mexico to your kitchen with these authentic street tacos!', 1892, 134, 445, 9876, ARRAY['Mexican', 'Tacos', 'Street Food', 'Beef'], 'Mexican', ARRAY['Non-Vegetarian'], 25, 15, 40, 6, 'Easy', 'English')
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample ingredients for Butter Chicken
 INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
-('660e8400-e29b-41d4-a716-446655440001', 'Paneer', 200, 'g'),
-('660e8400-e29b-41d4-a716-446655440001', 'Yogurt', 100, 'ml'),
-('660e8400-e29b-41d4-a716-446655440001', 'Garam Masala', 1, 'tsp'),
-('660e8400-e29b-41d4-a716-446655440002', 'Pizza Dough', 250, 'g'),
-('660e8400-e29b-41d4-a716-446655440002', 'Fresh Mozzarella', 150, 'g'),
-('660e8400-e29b-41d4-a716-446655440002', 'Fresh Basil', 10, 'leaves'),
-('660e8400-e29b-41d4-a716-446655440003', 'Quinoa', 100, 'g'),
-('660e8400-e29b-41d4-a716-446655440003', 'Chickpeas', 100, 'g'),
-('660e8400-e29b-41d4-a716-446655440003', 'Cherry Tomatoes', 150, 'g');
+('11111111-1111-1111-1111-111111111111', 'Chicken Breast', 500, 'g'),
+('11111111-1111-1111-1111-111111111111', 'Yogurt', 200, 'ml'),
+('11111111-1111-1111-1111-111111111111', 'Garam Masala', 2, 'tsp'),
+('11111111-1111-1111-1111-111111111111', 'Tomato Puree', 400, 'ml'),
+('11111111-1111-1111-1111-111111111111', 'Heavy Cream', 200, 'ml'),
+('11111111-1111-1111-1111-111111111111', 'Butter', 50, 'g')
+ON CONFLICT DO NOTHING;
 
--- Sample method steps
-INSERT INTO method_steps (recipe_id, step_number, description, time) VALUES
-('660e8400-e29b-41d4-a716-446655440001', 1, 'Cut paneer into 1-inch cubes', 5),
-('660e8400-e29b-41d4-a716-446655440001', 2, 'Mix yogurt with spices to make marinade', 10),
-('660e8400-e29b-41d4-a716-446655440001', 3, 'Marinate paneer for 30 minutes', 30),
-('660e8400-e29b-41d4-a716-446655440001', 4, 'Grill until golden brown', 20),
-('660e8400-e29b-41d4-a716-446655440002', 1, 'Preheat oven to 500°F (260°C)', 15),
-('660e8400-e29b-41d4-a716-446655440002', 2, 'Stretch dough into 12-inch circle', 10),
-('660e8400-e29b-41d4-a716-446655440002', 3, 'Add toppings and bake for 12-15 minutes', 15),
-('660e8400-e29b-41d4-a716-446655440003', 1, 'Cook quinoa according to package instructions', 20),
-('660e8400-e29b-41d4-a716-446655440003', 2, 'Assemble bowl with quinoa, vegetables, and protein', 5);
+-- Insert sample method steps for Butter Chicken
+INSERT INTO method_steps (recipe_id, step_number, description) VALUES
+('11111111-1111-1111-1111-111111111111', 1, 'Marinate chicken in yogurt and spices for 2 hours'),
+('11111111-1111-1111-1111-111111111111', 2, 'Grill chicken until charred and cooked through'),
+('11111111-1111-1111-1111-111111111111', 3, 'Prepare tomato-based gravy with spices'),
+('11111111-1111-1111-1111-111111111111', 4, 'Add grilled chicken and cream to gravy'),
+('11111111-1111-1111-1111-111111111111', 5, 'Simmer for 10 minutes and finish with butter')
+ON CONFLICT DO NOTHING;
 
--- Sample comments
-INSERT INTO comments (recipe_id, user_id, text) VALUES
-('660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002', 'This looks amazing! I love paneer tikka.'),
-('660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003', 'Great recipe! I added some extra chili powder.'),
-('660e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001', 'Perfect pizza! The crust looks so crispy.'),
-('660e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440001', 'Healthy and delicious! Perfect for meal prep.');
+-- Insert sample nutrition info for Butter Chicken
+INSERT INTO nutrition_info (recipe_id, calories, protein, carbs, fat, fiber, sugar) VALUES
+('11111111-1111-1111-1111-111111111111', 450, 35, 15, 28, 3, 8)
+ON CONFLICT DO NOTHING;
 
--- Sample likes
+-- Insert sample ingredients for Pizza Margherita
+INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
+('22222222-2222-2222-2222-222222222222', 'All-Purpose Flour', 300, 'g'),
+('22222222-2222-2222-2222-222222222222', 'Fresh Mozzarella', 200, 'g'),
+('22222222-2222-2222-2222-222222222222', 'Fresh Basil', 20, 'g'),
+('22222222-2222-2222-2222-222222222222', 'Tomato Sauce', 150, 'ml'),
+('22222222-2222-2222-2222-222222222222', 'Olive Oil', 30, 'ml')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample method steps for Pizza Margherita
+INSERT INTO method_steps (recipe_id, step_number, description) VALUES
+('22222222-2222-2222-2222-222222222222', 1, 'Prepare pizza dough and let it rise for 1 hour'),
+('22222222-2222-2222-2222-222222222222', 2, 'Roll out dough and add tomato sauce'),
+('22222222-2222-2222-2222-222222222222', 3, 'Add fresh mozzarella and basil'),
+('22222222-2222-2222-2222-222222222222', 4, 'Bake at 450°F for 12-15 minutes until crispy')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample nutrition info for Pizza Margherita
+INSERT INTO nutrition_info (recipe_id, calories, protein, carbs, fat, fiber, sugar) VALUES
+('22222222-2222-2222-2222-222222222222', 380, 18, 45, 16, 4, 6)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample ingredients for Thai Green Curry
+INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
+('33333333-3333-3333-3333-333333333333', 'Green Curry Paste', 3, 'tbsp'),
+('33333333-3333-3333-3333-333333333333', 'Coconut Milk', 400, 'ml'),
+('33333333-3333-3333-3333-333333333333', 'Mixed Vegetables', 300, 'g'),
+('33333333-3333-3333-3333-333333333333', 'Fish Sauce', 2, 'tbsp'),
+('33333333-3333-3333-3333-333333333333', 'Palm Sugar', 1, 'tbsp')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample method steps for Thai Green Curry
+INSERT INTO method_steps (recipe_id, step_number, description) VALUES
+('33333333-3333-3333-3333-333333333333', 1, 'Fry green curry paste in oil until fragrant'),
+('33333333-3333-3333-3333-333333333333', 2, 'Add coconut milk and bring to simmer'),
+('33333333-3333-3333-3333-333333333333', 3, 'Add vegetables and cook until tender'),
+('33333333-3333-3333-3333-333333333333', 4, 'Season with fish sauce and palm sugar'),
+('33333333-3333-3333-3333-333333333333', 5, 'Serve hot with steamed rice')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample nutrition info for Thai Green Curry
+INSERT INTO nutrition_info (recipe_id, calories, protein, carbs, fat, fiber, sugar) VALUES
+('33333333-3333-3333-3333-333333333333', 320, 12, 25, 22, 8, 6)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample ingredients for French Croissants
+INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
+('44444444-4444-4444-4444-444444444444', 'All-Purpose Flour', 500, 'g'),
+('44444444-4444-4444-4444-444444444444', 'Butter', 300, 'g'),
+('44444444-4444-4444-4444-444444444444', 'Active Dry Yeast', 7, 'g'),
+('44444444-4444-4444-4444-444444444444', 'Milk', 250, 'ml'),
+('44444444-4444-4444-4444-444444444444', 'Sugar', 50, 'g')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample method steps for French Croissants
+INSERT INTO method_steps (recipe_id, step_number, description) VALUES
+('44444444-4444-4444-4444-444444444444', 1, 'Prepare dough and let it rise for 1 hour'),
+('44444444-4444-4444-4444-444444444444', 2, 'Roll out dough and fold in butter layers'),
+('44444444-4444-4444-4444-444444444444', 3, 'Chill and repeat folding process 3 times'),
+('44444444-4444-4444-4444-444444444444', 4, 'Shape into croissants and let rise'),
+('44444444-4444-4444-4444-444444444444', 5, 'Bake at 400°F for 15-20 minutes')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample nutrition info for French Croissants
+INSERT INTO nutrition_info (recipe_id, calories, protein, carbs, fat, fiber, sugar) VALUES
+('44444444-4444-4444-4444-444444444444', 280, 6, 32, 16, 1, 4)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample ingredients for Mexican Street Tacos
+INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
+('55555555-5555-5555-5555-555555555555', 'Beef Flank Steak', 500, 'g'),
+('55555555-5555-5555-5555-555555555555', 'Corn Tortillas', 12, 'pieces'),
+('55555555-5555-5555-5555-555555555555', 'Fresh Cilantro', 50, 'g'),
+('55555555-5555-5555-5555-555555555555', 'White Onion', 1, 'piece'),
+('55555555-5555-5555-5555-555555555555', 'Lime', 3, 'pieces')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample method steps for Mexican Street Tacos
+INSERT INTO method_steps (recipe_id, step_number, description) VALUES
+('55555555-5555-5555-5555-555555555555', 1, 'Marinate beef with lime, garlic, and spices'),
+('55555555-5555-5555-5555-555555555555', 2, 'Grill beef to medium-rare and slice thinly'),
+('55555555-5555-5555-5555-555555555555', 3, 'Warm corn tortillas on griddle'),
+('55555555-5555-5555-5555-555555555555', 4, 'Assemble tacos with beef, onion, and cilantro'),
+('55555555-5555-5555-5555-555555555555', 5, 'Serve with lime wedges and salsa')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample nutrition info for Mexican Street Tacos
+INSERT INTO nutrition_info (recipe_id, calories, protein, carbs, fat, fiber, sugar) VALUES
+('55555555-5555-5555-5555-555555555555', 320, 28, 22, 18, 3, 2)
+ON CONFLICT DO NOTHING;
+
+-- Update user post counts
+UPDATE users SET posts_count = 1 WHERE id = '11111111-1111-1111-1111-111111111111';
+UPDATE users SET posts_count = 1 WHERE id = '22222222-2222-2222-2222-222222222222';
+UPDATE users SET posts_count = 1 WHERE id = '33333333-3333-3333-3333-333333333333';
+UPDATE users SET posts_count = 1 WHERE id = '44444444-4444-4444-4444-444444444444';
+UPDATE users SET posts_count = 1 WHERE id = '55555555-5555-5555-5555-555555555555';
+
+-- Insert some sample likes and saves to make the feed feel more engaging
 INSERT INTO likes (user_id, recipe_id) VALUES
-('550e8400-e29b-41d4-a716-446655440002', '660e8400-e29b-41d4-a716-446655440001'),
-('550e8400-e29b-41d4-a716-446655440003', '660e8400-e29b-41d4-a716-446655440001'),
-('550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440002'),
-('550e8400-e29b-41d4-a716-446655440003', '660e8400-e29b-41d4-a716-446655440002'),
-('550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440003'),
-('550e8400-e29b-41d4-a716-446655440002', '660e8400-e29b-41d4-a716-446655440003');
+('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'),
+('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111'),
+('33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111111'),
+('44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333'),
+('55555555-5555-5555-5555-555555555555', '44444444-4444-4444-4444-444444444444')
+ON CONFLICT DO NOTHING;
 
--- Sample follows
+-- Insert some sample saves
+INSERT INTO saves (user_id, recipe_id) VALUES
+('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333'),
+('22222222-2222-2222-2222-222222222222', '44444444-4444-4444-4444-444444444444'),
+('33333333-3333-3333-3333-333333333333', '55555555-5555-5555-5555-555555555555'),
+('44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111111'),
+('55555555-5555-5555-5555-555555555555', '22222222-2222-2222-2222-222222222222')
+ON CONFLICT DO NOTHING;
+
+-- Insert some sample comments
+INSERT INTO comments (recipe_id, user_id, content) VALUES
+('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'This looks absolutely delicious! Can''t wait to try it.'),
+('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'Perfect pizza recipe! The crust looks amazing.'),
+('33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444', 'Love Thai food! This curry looks perfect.'),
+('44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333', 'Beautiful croissants! French pastry at its best.'),
+('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', 'Authentic Mexican flavors! These tacos look amazing.')
+ON CONFLICT DO NOTHING;
+
+-- Update recipe engagement counts based on inserted data
+UPDATE recipes SET likes_count = (SELECT COUNT(*) FROM likes WHERE recipe_id = recipes.id);
+UPDATE recipes SET saves_count = (SELECT COUNT(*) FROM saves WHERE recipe_id = recipes.id);
+UPDATE recipes SET comments_count = (SELECT COUNT(*) FROM comments WHERE recipe_id = recipes.id);
+
+-- Update user follower counts (create some sample follows)
 INSERT INTO follows (follower_id, following_id) VALUES
-('550e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001'),
-('550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440001'),
-('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002'),
-('550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440002'),
-('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003'),
-('550e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440003');
+('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111'),
+('33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111111'),
+('44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111111'),
+('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'),
+('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222222')
+ON CONFLICT DO NOTHING;
 
--- Update counts
-UPDATE recipes SET 
-  likes_count = (SELECT COUNT(*) FROM likes WHERE recipe_id = recipes.id),
-  comments_count = (SELECT COUNT(*) FROM comments WHERE recipe_id = recipes.id);
+-- Update follower/following counts
+UPDATE users SET followers_count = (SELECT COUNT(*) FROM follows WHERE following_id = users.id);
+UPDATE users SET following_count = (SELECT COUNT(*) FROM follows WHERE follower_id = users.id);
 
-UPDATE users SET 
-  followers_count = (SELECT COUNT(*) FROM follows WHERE following_id = users.id),
-  following_count = (SELECT COUNT(*) FROM follows WHERE follower_id = users.id),
-  posts_count = (SELECT COUNT(*) FROM recipes WHERE creator_id = users.id);
+-- Insert some sample recipe views
+INSERT INTO recipe_views (recipe_id, user_id) VALUES
+('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'),
+('11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333'),
+('11111111-1111-1111-1111-111111111111', '44444444-4444-4444-4444-444444444444'),
+('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111'),
+('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333'),
+('33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111111'),
+('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222222'),
+('44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111111'),
+('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111')
+ON CONFLICT DO NOTHING;
+
+-- Update recipe view counts
+UPDATE recipes SET views_count = (SELECT COUNT(*) FROM recipe_views WHERE recipe_id = recipes.id);
+
+-- Drop existing functions if they exist
+DROP FUNCTION IF EXISTS update_recipe_counts();
+DROP FUNCTION IF EXISTS update_user_counts();
+DROP FUNCTION IF EXISTS update_post_counts();
+
+-- Create a function to update recipe engagement counts automatically
+CREATE OR REPLACE FUNCTION update_recipe_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_TABLE_NAME = 'likes' THEN
+    UPDATE recipes SET likes_count = (SELECT COUNT(*) FROM likes WHERE recipe_id = NEW.recipe_id) WHERE id = NEW.recipe_id;
+  ELSIF TG_TABLE_NAME = 'saves' THEN
+    UPDATE recipes SET saves_count = (SELECT COUNT(*) FROM saves WHERE recipe_id = NEW.recipe_id) WHERE id = NEW.recipe_id;
+  ELSIF TG_TABLE_NAME = 'comments' THEN
+    UPDATE recipes SET comments_count = (SELECT COUNT(*) FROM comments WHERE recipe_id = NEW.recipe_id) WHERE id = NEW.recipe_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a function to update user follower counts automatically
+CREATE OR REPLACE FUNCTION update_user_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_TABLE_NAME = 'follows' THEN
+    UPDATE users SET followers_count = (SELECT COUNT(*) FROM follows WHERE following_id = NEW.following_id) WHERE id = NEW.following_id;
+    UPDATE users SET following_count = (SELECT COUNT(*) FROM follows WHERE follower_id = NEW.follower_id) WHERE id = NEW.follower_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a function to update user post counts automatically
+CREATE OR REPLACE FUNCTION update_post_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_TABLE_NAME = 'recipes' THEN
+    UPDATE users SET posts_count = (SELECT COUNT(*) FROM recipes WHERE creator_id = NEW.creator_id) WHERE id = NEW.creator_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS update_likes_count ON likes;
+DROP TRIGGER IF EXISTS update_saves_count ON saves;
+DROP TRIGGER IF EXISTS update_comments_count ON comments;
+DROP TRIGGER IF EXISTS update_follower_counts ON follows;
+DROP TRIGGER IF EXISTS update_post_counts ON recipes;
+
+-- Create triggers to automatically update counts
+CREATE TRIGGER update_likes_count AFTER INSERT OR DELETE ON likes FOR EACH ROW EXECUTE FUNCTION update_recipe_counts();
+CREATE TRIGGER update_saves_count AFTER INSERT OR DELETE ON saves FOR EACH ROW EXECUTE FUNCTION update_recipe_counts();
+CREATE TRIGGER update_comments_count AFTER INSERT OR DELETE ON comments FOR EACH ROW EXECUTE FUNCTION update_recipe_counts();
+
+-- Create trigger to automatically update follower counts
+CREATE TRIGGER update_follower_counts AFTER INSERT OR DELETE ON follows FOR EACH ROW EXECUTE FUNCTION update_user_counts();
+
+-- Create trigger to automatically update post counts
+CREATE TRIGGER update_post_counts AFTER INSERT OR DELETE ON recipes FOR EACH ROW EXECUTE FUNCTION update_post_counts();
+
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated;
+
+-- Enable realtime for tables that need it
+ALTER PUBLICATION supabase_realtime ADD TABLE recipes, users, likes, saves, comments;

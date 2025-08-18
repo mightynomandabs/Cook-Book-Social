@@ -1,6 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -13,8 +12,8 @@ interface State {
   errorInfo?: ErrorInfo;
 }
 
-class ErrorBoundaryClass extends Component<Props & { navigate: (path: string) => void }, State> {
-  constructor(props: Props & { navigate: (path: string) => void }) {
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
@@ -65,14 +64,6 @@ class ErrorBoundaryClass extends Component<Props & { navigate: (path: string) =>
                 <RefreshCw className="w-5 h-5" />
                 <span>Try Again</span>
               </button>
-              
-              <button
-                onClick={() => this.props.navigate('/feed')}
-                className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold py-3 px-6 rounded-2xl transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <Home className="w-5 h-5" />
-                <span>Go Home</span>
-              </button>
             </div>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -103,15 +94,5 @@ class ErrorBoundaryClass extends Component<Props & { navigate: (path: string) =>
     return this.props.children;
   }
 }
-
-// Wrapper component to provide navigation
-const ErrorBoundary: React.FC<Props> = ({ children, fallback }) => {
-  const navigate = useNavigate();
-  return (
-    <ErrorBoundaryClass navigate={navigate} fallback={fallback}>
-      {children}
-    </ErrorBoundaryClass>
-  );
-};
 
 export default ErrorBoundary;

@@ -1,281 +1,224 @@
-# 🍳 CookBook MVP - Launchable Food Social App
+# CookBook MVP - Recipe Discovery & Creation App
 
-A streamlined, production-ready MVP of CookBook that delivers the core user experience: **Onboard → Personalized Feed → Recipe View → Engagement → Create Recipe → Repeat**.
+## 🎯 Overview
 
-## 🎯 **MVP Features**
+CookBook is a React + TypeScript + Supabase social food app that has been refactored for MVP to focus on three core priorities:
 
-### ✅ **Core Functionality**
-- **Authentication**: Google + Email login/signup via Supabase
-- **Onboarding**: Interest selection, cuisine preferences, dietary choices, profile photo
-- **Feed**: TikTok-style vertical scrolling recipe posts (videos/photos)
-- **Recipe Detail**: Clear ingredients + method steps
-- **Engagement**: Like, comment, save, follow functionality
-- **Recipe Creation**: Upload media + title + description + ingredients + steps
-- **Theme Toggle**: Light/dark mode support
-- **Profile Management**: User profiles with cooking level and achievements
+1. **Main Feed** - TikTok-style vertical scroll of recipes (highest priority)
+2. **Streamlined Recipe Creation** - 3-step stepper interface
+3. **Simplified Profile Page** - Essential features only
 
-### ✅ **Production Polish**
-- **Error Handling**: Comprehensive error boundaries and fallback states
-- **Loading States**: Skeleton loaders with shimmer effects
-- **Empty States**: User-friendly empty state screens
-- **Analytics**: Event tracking for core user actions
-- **Moderation**: Basic reporting and user blocking
-- **Notifications**: In-app notifications for social interactions
-- **Responsive Design**: Mobile-first, touch-optimized interface
+## ✨ Key Features
 
-## 🚫 **Removed Features (MVP)**
+### 🍳 Main Feed (KitchenFeed.tsx)
+- **TikTok-style vertical scrolling** with smooth navigation
+- **10 sample recipes** from diverse cuisines (Indian, Italian, Thai, French, Mexican, Japanese, Mediterranean, Korean, American, Moroccan)
+- **Search functionality** across recipes, cuisines, and tags
+- **Recipe cards** showing:
+  - Creator avatar and name
+  - Recipe media (image/video)
+  - Caption/teaser text
+  - Like, comment, and save counts
+  - Action buttons (like, comment, save, share)
+- **Navigation dots** for quick recipe jumping
+- **Progress bar** showing feed position
+- **Tap to view** recipe details
 
-- ❌ Pantry AI assistant
-- ❌ Meal planning & shopping cart
-- ❌ Smart price comparisons
-- ❌ Recipe remix editor
-- ❌ Community contests & leaderboards
-- ❌ Live cooking rooms
-- ❌ Restaurant hub (B2B features)
-- ❌ Advanced gamification
+### 📝 Recipe Creation (RecipeCreate.tsx)
+- **3-step stepper interface**:
+  1. **Details**: Title, cuisine, difficulty, prep/cook time, description, tags
+  2. **Ingredients**: Smart suggestions with common ingredients
+  3. **Steps & Media**: Method steps and recipe media upload
+- **Progress indicator** with visual feedback
+- **Field validation** before advancing steps
+- **Smart ingredient suggestions** (typeahead functionality)
+- **Media upload** support for images and videos
+- **Responsive design** with mobile-first approach
 
-## 🏗️ **Architecture**
+### 👤 Profile Page (Profile.tsx)
+- **Essential information only**:
+  - Profile picture and name
+  - Bio and location
+  - Follower/Following counts
+  - Grid of posted recipes
+- **Removed advanced features**:
+  - Cooking level and achievements
+  - Foodie resume
+  - Creator tools
+  - Saved recipes tab
+- **Clean, minimal UI** focused on core functionality
 
-### **Tech Stack**
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS with custom design system
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **State Management**: React Hooks + Context
-- **Animations**: Framer Motion (gracefully degraded)
-- **Icons**: Lucide React
+### 🔍 Recipe Detail View (RecipeDetail.tsx)
+- **Comprehensive recipe information**:
+  - Full recipe media (image/video)
+  - Creator details
+  - Recipe stats (likes, comments, saves, views)
+  - Cooking time, servings, difficulty
+  - Tags and description
+  - Ingredients list
+  - Method steps
+  - Nutrition information
+- **Interactive elements**:
+  - Like and save functionality
+  - Share recipe
+  - Create similar recipe button
 
-### **Component Structure**
-```
-src/
-├── components/
-│   ├── MVPKitchenFeed.tsx      # Main feed (replaces KitchenFeed)
-│   ├── MVPBottomNavigation.tsx # Simplified navigation
-│   ├── ErrorBoundary.tsx       # Error handling
-│   ├── EmptyState.tsx          # Empty state components
-│   ├── LoadingStates.tsx       # Skeleton loaders
-│   ├── RecipeCard.tsx          # Recipe display
-│   ├── RecipeDetail.tsx        # Recipe view
-│   ├── RecipeCreate.tsx        # Recipe creation
-│   ├── Profile.tsx             # User profile
-│   ├── Login.tsx               # Authentication
-│   └── Onboarding.tsx          # User onboarding
-├── services/
-│   ├── analytics.ts            # Event tracking
-│   ├── moderation.ts           # Content moderation
-│   └── notifications.ts        # Notification system
-├── contexts/
-│   ├── AuthContext.tsx         # Authentication state
-│   └── ThemeContext.tsx        # Theme management
-└── hooks/
-    └── useSupabaseData.ts      # Data fetching
-```
+## 🛠️ Technical Implementation
 
-## 🚀 **Getting Started**
+### Frontend Stack
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **Framer Motion** for animations
+- **Lucide React** for icons
+- **React Router** for navigation
 
-### **Prerequisites**
-- Node.js 16+
-- npm or yarn
+### Database Schema (Supabase)
+- **Users table** with essential profile information
+- **Recipes table** with comprehensive recipe data
+- **Ingredients table** for recipe ingredients
+- **Method steps table** for cooking instructions
+- **Nutrition info table** for dietary information
+- **Engagement tables** (likes, saves, comments, follows)
+- **Row Level Security (RLS)** policies for data protection
+
+### Sample Data
+- **10 diverse recipes** from different cuisines
+- **5 sample users** with realistic profiles
+- **Complete recipe data** including ingredients, methods, and nutrition
+- **Engagement data** (likes, saves, comments) for realistic feel
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 16+ and npm
 - Supabase account and project
 
-### **Installation**
-```bash
-# Clone the repository
-git clone <repository-url>
-cd cookbook-app
+### Installation
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up Supabase environment variables
+4. Run the database schema: `database-schema.sql`
+5. Start the development server: `npm start`
 
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Add your Supabase URL and anon key
-
-# Start development server
-npm start
-```
-
-### **Database Setup**
-1. Create a new Supabase project
-2. Run the SQL from `database-schema.sql` in your Supabase SQL Editor
-3. Update your environment variables with the project credentials
-
-## 📱 **User Journey**
-
-### **1. Onboarding**
-```
-Sign Up → Interest Selection → Photo Upload → Profile Creation → Feed
-```
-
-### **2. Core Loop**
-```
-Browse Feed → View Recipe → Engage (like/comment/save) → Create Recipe → Repeat
-```
-
-### **3. Engagement Flow**
-- **Like**: One-tap recipe appreciation
-- **Comment**: Share thoughts and tips
-- **Save**: Bookmark for later cooking
-- **Follow**: Connect with favorite creators
-
-## 🔧 **Key Services**
-
-### **Analytics Service**
-- Tracks core user actions (recipe views, likes, comments, etc.)
-- Performance metrics and error logging
-- Configurable for development/production
-
-### **Moderation Service**
-- User reporting system
-- Content moderation tools
-- User blocking functionality
-
-### **Notification Service**
-- In-app notifications for social interactions
-- Welcome messages for new users
-- Configurable notification types
-
-## 🎨 **Design System**
-
-### **Color Palette**
-- **Primary**: Orange (#FF8800) - Actions and highlights
-- **Secondary**: Red (#FF4444) - Accents and CTAs
-- **Neutral**: Slate scale for text and backgrounds
-- **Success**: Green (#7CC144) - Confirmations
-- **Error**: Red (#EF4444) - Errors and warnings
-
-### **Components**
-- **Skeleton Loaders**: Shimmer effects for loading states
-- **Empty States**: Friendly illustrations and clear CTAs
-- **Error States**: Helpful error messages with recovery options
-- **Responsive Cards**: Mobile-optimized recipe displays
-
-## 📊 **Analytics Events**
-
-### **Core Events Tracked**
-- `user_onboarded` - User completes onboarding
-- `recipe_viewed` - Recipe detail page viewed
-- `recipe_created` - New recipe published
-- `recipe_liked` - Recipe liked by user
-- `recipe_saved` - Recipe saved by user
-- `comment_posted` - Comment added to recipe
-- `user_followed` - User follows another user
-- `feed_scrolled` - Feed scrolling behavior
-
-## 🛡️ **Moderation Features**
-
-### **Reporting System**
-- Report inappropriate content or users
-- Multiple report reasons (spam, harassment, etc.)
-- Admin review workflow (basic implementation)
-
-### **User Management**
-- Block/unblock users
-- Content filtering
-- Safety controls
-
-## 🔔 **Notifications**
-
-### **Types**
-- New followers
-- Comments on recipes
-- Likes on recipes
-- Recipe saves
-- Welcome messages
-- System announcements
-
-### **Delivery**
-- In-app notifications
-- Real-time updates via Supabase
-- Configurable preferences
-
-## 📱 **Mobile Optimization**
-
-### **Touch Interactions**
-- Swipe gestures for feed navigation
-- Tap targets sized for mobile
-- Smooth scrolling and animations
-
-### **Performance**
-- Lazy loading for images
-- Optimized bundle size
-- Progressive enhancement
-
-## 🚀 **Deployment**
-
-### **Build for Production**
-```bash
-npm run build
-```
-
-### **Deploy Options**
-- **Vercel**: Optimized for React apps
-- **Netlify**: Easy deployment with previews
-- **Supabase**: Host frontend on Supabase hosting
-
-### **Environment Variables**
+### Environment Variables
 ```env
 REACT_APP_SUPABASE_URL=your_supabase_url
 REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
-REACT_APP_ENVIRONMENT=production
 ```
 
-## 🧪 **Testing**
+## 📱 User Experience
 
-### **Manual Testing Checklist**
-- [ ] User registration and login
-- [ ] Onboarding flow completion
-- [ ] Recipe feed loading and scrolling
-- [ ] Recipe creation and publishing
-- [ ] Like, comment, and save functionality
-- [ ] User following system
-- [ ] Error handling and recovery
-- [ ] Loading states and empty states
-- [ ] Theme switching
-- [ ] Mobile responsiveness
+### Feed Navigation
+- **Vertical scroll** with mouse wheel or touch gestures
+- **Navigation dots** for quick recipe jumping
+- **Progress bar** showing current position
+- **Search bar** for filtering recipes
 
-### **Performance Testing**
-- [ ] Initial page load time
-- [ ] Feed scrolling performance
-- [ ] Image loading optimization
-- [ ] Bundle size analysis
+### Recipe Creation Flow
+- **Step-by-step guidance** with clear progress indication
+- **Validation feedback** before proceeding
+- **Smart suggestions** for common ingredients
+- **Media upload** with preview
 
-## 🔮 **Future Enhancements**
+### Profile Management
+- **Clean interface** focused on essential information
+- **Recipe grid** showing user's posts
+- **Floating action button** for quick recipe creation
 
-### **Phase 2 Features**
-- Advanced search and filtering
-- Recipe categories and tags
-- Social sharing integration
-- Push notifications
-- Offline support
+## 🎨 Design System
 
-### **Phase 3 Features**
-- AI recipe recommendations
-- Community features
-- Monetization tools
-- Advanced analytics
+### Color Palette
+- **Primary**: Orange (#f97316) for main actions and highlights
+- **Secondary**: Gray scale for text and backgrounds
+- **Accent**: Red for likes, green for saves
 
-## 📝 **Contributing**
+### Typography
+- **Headings**: Bold, large text for hierarchy
+- **Body**: Regular weight for readability
+- **Captions**: Smaller text for secondary information
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### Components
+- **Cards**: Rounded corners with subtle shadows
+- **Buttons**: Consistent styling with hover states
+- **Forms**: Clean inputs with focus states
+- **Navigation**: Intuitive icons and labels
 
-## 📄 **License**
+## 🔒 Security & Performance
 
-This project is licensed under the MIT License.
+### Security
+- **Row Level Security (RLS)** on all tables
+- **User authentication** required for modifications
+- **Public read access** for recipe discovery
+- **User-specific permissions** for content management
 
-## 🆘 **Support**
+### Performance
+- **Optimized images** with proper sizing
+- **Lazy loading** for recipe media
+- **Efficient database queries** with proper indexing
+- **Responsive design** for all screen sizes
 
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Contact the development team
+## 📊 Database Structure
+
+### Core Tables
+- `users` - User profiles and statistics
+- `recipes` - Recipe information and metadata
+- `ingredients` - Recipe ingredients with amounts
+- `method_steps` - Cooking instructions
+- `nutrition_info` - Dietary information
+
+### Engagement Tables
+- `likes` - User recipe likes
+- `saves` - User recipe saves
+- `comments` - User recipe comments
+- `follows` - User relationships
+- `recipe_views` - Recipe view tracking
+
+### Storage
+- **Recipe media bucket** for images and videos
+- **Public access** for recipe discovery
+- **User-specific permissions** for uploads
+
+## 🚧 Future Enhancements
+
+### Phase 2 Features
+- **Advanced search** with filters and sorting
+- **Recipe recommendations** based on user preferences
+- **Social features** like following and notifications
+- **Recipe collections** and meal planning
+
+### Phase 3 Features
+- **Creator tools** and analytics
+- **Monetization** features
+- **Multi-language support**
+- **Advanced nutrition tracking**
+
+## 🤝 Contributing
+
+### Development Guidelines
+- Follow TypeScript best practices
+- Use Tailwind CSS for styling
+- Implement responsive design
+- Add proper error handling
+- Include loading states
+
+### Code Quality
+- ESLint configuration for code consistency
+- Prettier for code formatting
+- TypeScript strict mode enabled
+- Component prop validation
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **Unsplash** for recipe images
+- **Supabase** for backend infrastructure
+- **Tailwind CSS** for utility-first styling
+- **Framer Motion** for smooth animations
+- **Lucide** for beautiful icons
 
 ---
 
-**CookBook MVP** - Ready for launch! 🚀✨
-
-*Built with ❤️ for food lovers everywhere*
+**Built with ❤️ for food lovers and creators**

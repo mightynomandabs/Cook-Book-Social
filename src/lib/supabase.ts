@@ -3,7 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://cxkllgtahdbrkkgphqql.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4a2xsZ3RhaGRicmtrZ3BocXFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNjMyOTEsImV4cCI6MjA3MDgzOTI5MX0.JAXxsK2Jqb7gRqDfny7ZVCDw5LBeTr_gqdfnjGGBSf8'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+})
 
 // Database table names
 export const TABLES = {

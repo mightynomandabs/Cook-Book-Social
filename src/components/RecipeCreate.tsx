@@ -1,24 +1,15 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Upload, 
   Video, 
   Image, 
-  Mic, 
-  MicOff, 
-  Edit3, 
-  Scissors, 
-  Globe, 
-  Eye, 
   X, 
   Plus,
-  Lightbulb,
+  ArrowLeft,
+  ArrowRight,
   CheckCircle,
-  Clock,
-  Users,
-  Star,
-  Save,
-  ArrowLeft
+  Save
 } from 'lucide-react';
 import { supabase, TABLES } from '../lib/supabase';
 
@@ -37,16 +28,17 @@ interface RecipeFormData {
   cookTime: number;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  language: string;
   ingredients: string[];
   method: string[];
 }
 
+type Step = 'details' | 'ingredients' | 'steps';
+
 const RecipeCreate: React.FC = () => {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<Step>('details');
   const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
   
   const [formData, setFormData] = useState<RecipeFormData>({
     title: '',
@@ -57,7 +49,6 @@ const RecipeCreate: React.FC = () => {
     cookTime: 0,
     servings: 1,
     difficulty: 'Easy',
-    language: 'English',
     ingredients: [],
     method: []
   });
@@ -77,8 +68,7 @@ const RecipeCreate: React.FC = () => {
 
   const suggestedTags = [
     'Quick', 'Healthy', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free',
-    'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Appetizer',
-    'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Indian', 'American'
+    'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Appetizer'
   ];
 
   const commonIngredients = [
@@ -87,12 +77,10 @@ const RecipeCreate: React.FC = () => {
     'Chicken Breast', 'Ground Beef', 'Rice', 'Pasta', 'Bell Peppers'
   ];
 
-  const methodTemplates = [
-    'Preheat oven to {temperature}°F',
-    'In a large bowl, combine {ingredients}',
-    'Season with salt and pepper to taste',
-    'Cook until {desired_result}',
-    'Let rest for {time} minutes before serving'
+  const steps: { key: Step; title: string; description: string }[] = [
+    { key: 'details', title: 'Details', description: 'Basic recipe information' },
+    { key: 'ingredients', title: 'Ingredients', description: 'What you need' },
+    { key: 'steps', title: 'Steps & Media', description: 'How to make it' }
   ];
 
   const handleMediaUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,6 +145,29 @@ const RecipeCreate: React.FC = () => {
     updateFormField('method', formData.method.filter((_, i) => i !== index));
   };
 
+  const canProceedToNext = () => {
+    switch (currentStep) {
+      case 'details':
+        return formData.title.trim() && formData.cuisine && formData.difficulty;
+      case 'ingredients':
+        return formData.ingredients.length > 0;
+      case 'steps':
+        return formData.method.length > 0 && uploadedMedia;
+      default:
+        return false;
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep === 'details') setCurrentStep('ingredients');
+    else if (currentStep === 'ingredients') setCurrentStep('steps');
+  };
+
+  const prevStep = () => {
+    if (currentStep === 'ingredients') setCurrentStep('details');
+    else if (currentStep === 'steps') setCurrentStep('ingredients');
+  };
+
   const createRecipeInSupabase = async () => {
     if (!uploadedMedia) return;
 
@@ -191,7 +202,7 @@ const RecipeCreate: React.FC = () => {
           cook_time: formData.cookTime,
           servings: formData.servings,
           difficulty: formData.difficulty,
-          language: formData.language,
+          language: 'English',
           tags: formData.tags,
           dietary_tags: formData.tags.filter(tag => ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'].includes(tag)),
           is_published: true,
@@ -258,18 +269,6 @@ const RecipeCreate: React.FC = () => {
     }
   };
 
-  const handleSaveDraft = async () => {
-    setIsSavingDraft(true);
-    try {
-      // Save draft logic here
-      alert('Draft saved successfully!');
-    } catch (error: any) {
-      alert(`Error saving draft: ${error.message}`);
-    } finally {
-      setIsSavingDraft(false);
-    }
-  };
-
   const totalTime = formData.prepTime + formData.cookTime;
 
   return (
@@ -285,510 +284,451 @@ const RecipeCreate: React.FC = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-semibold text-gray-900">Create Recipe</h1>
-            <button
-              onClick={handleSaveDraft}
-              disabled={isSavingDraft}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              {isSavingDraft ? 'Saving...' : 'Save Draft'}
-            </button>
+            <div className="w-20" /> {/* Spacer for centering */}
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Media Upload Section */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Progress Stepper */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.key} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-200 ${
+                    currentStep === step.key
+                      ? 'border-orange-500 bg-orange-500 text-white'
+                      : steps.findIndex(s => s.key === currentStep) > index
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-gray-300 bg-white text-gray-400'
+                  }`}>
+                    {steps.findIndex(s => s.key === currentStep) > index ? (
+                      <CheckCircle className="w-6 h-6" />
+                    ) : (
+                      <span className="font-semibold">{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-sm font-medium ${
+                      currentStep === step.key ? 'text-orange-500' : 'text-gray-500'
+                    }`}>
+                      {step.title}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">{step.description}</p>
+                  </div>
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={`w-16 h-0.5 mx-4 ${
+                    steps.findIndex(s => s.key === currentStep) > index ? 'bg-green-500' : 'bg-gray-300'
+                  }`} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Step Content */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Media</h2>
-          
-          {!uploadedMedia ? (
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-cookbook-orange transition-colors">
-              <input
-                ref={mediaRef}
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleMediaUpload}
-                className="hidden"
-              />
-              <button
-                onClick={() => mediaRef.current?.click()}
-                className="flex flex-col items-center space-y-4"
-              >
-                <div className="w-16 h-16 bg-cookbook-orange/10 rounded-full flex items-center justify-center">
-                  <Upload className="w-8 h-8 text-cookbook-orange" />
+          {/* Step 1: Details */}
+          {currentStep === 'details' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Recipe Details</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Title */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Recipe Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => updateFormField('title', e.target.value)}
+                    placeholder="Enter recipe title..."
+                    maxLength={100}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  />
                 </div>
+
+                {/* Cuisine */}
                 <div>
-                  <p className="text-lg font-medium text-gray-900">Upload Photo or Video</p>
-                  <p className="text-sm text-gray-500">Drag and drop or click to browse</p>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cuisine *
+                  </label>
+                  <select
+                    value={formData.cuisine}
+                    onChange={(e) => updateFormField('cuisine', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  >
+                    <option value="">Select cuisine</option>
+                    {cuisineOptions.map(cuisine => (
+                      <option key={cuisine} value={cuisine}>{cuisine}</option>
+                    ))}
+                  </select>
                 </div>
-              </button>
+
+                {/* Difficulty */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Difficulty Level *
+                  </label>
+                  <select
+                    value={formData.difficulty}
+                    onChange={(e) => updateFormField('difficulty', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  >
+                    {difficultyOptions.map(difficulty => (
+                      <option key={difficulty} value={difficulty}>{difficulty}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Prep Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prep Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.prepTime}
+                    onChange={(e) => updateFormField('prepTime', parseInt(e.target.value) || 0)}
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  />
+                </div>
+
+                {/* Cook Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cook Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.cookTime}
+                    onChange={(e) => updateFormField('cookTime', parseInt(e.target.value) || 0)}
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  />
+                </div>
+
+                {/* Total Time Display */}
+                <div className="md:col-span-2">
+                  <div className="flex items-center space-x-4 p-4 bg-orange-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium">Total Time:</span>
+                      <span className="text-lg font-bold text-orange-600">
+                        {totalTime} minutes
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-600">
+                        Serves {formData.servings} {formData.servings === 1 ? 'person' : 'people'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => updateFormField('description', e.target.value)}
+                  placeholder="Describe your recipe, cooking tips, or story behind it..."
+                  rows={4}
+                  maxLength={500}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none"
+                />
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tags
+                </label>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center space-x-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        <span>{tag}</span>
+                        <button
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-orange-800"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      placeholder="Add custom tag..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                    />
+                    <button
+                      onClick={addTag}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Suggested tags:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedTags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => !formData.tags.includes(tag) && updateFormField('tags', [...formData.tags, tag])}
+                          disabled={formData.tags.includes(tag)}
+                          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                            formData.tags.includes(tag)
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="relative">
-              {uploadedMedia.type === 'image' ? (
-                <img
-                  src={uploadedMedia.url}
-                  alt="Recipe"
-                  className="w-full h-64 object-cover rounded-xl"
-                />
-              ) : (
-                <video
-                  src={uploadedMedia.url}
-                  controls
-                  className="w-full h-64 object-cover rounded-xl"
-                />
-              )}
-              <button
-                onClick={() => setUploadedMedia(null)}
-                className="absolute top-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+          )}
+
+          {/* Step 2: Ingredients */}
+          {currentStep === 'ingredients' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Ingredients</h2>
+              
+              <div className="space-y-4">
+                {formData.ingredients.map((ingredient, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      {index + 1}
+                    </span>
+                    <span className="flex-1 px-4 py-3 bg-gray-50 rounded-lg text-gray-700 font-medium">
+                      {ingredient}
+                    </span>
+                    <button
+                      onClick={() => removeIngredient(index)}
+                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                
+                {formData.ingredients.length === 0 && (
+                  <p className="text-gray-500 text-center py-8">
+                    No ingredients added yet. Add ingredients to continue.
+                  </p>
+                )}
+
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newIngredient}
+                    onChange={(e) => setNewIngredient(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
+                    placeholder="Type ingredient name (e.g., 'Oni' for 'Onion')"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+                  />
+                  <button
+                    onClick={() => addIngredient()}
+                    className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Common Ingredients Suggestions */}
+                <div className="mt-6">
+                  <p className="text-sm font-medium text-gray-700 mb-3">Common ingredients:</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {commonIngredients.map((ingredient) => (
+                      <button
+                        key={ingredient}
+                        onClick={() => !formData.ingredients.includes(ingredient) && addIngredient(ingredient)}
+                        disabled={formData.ingredients.includes(ingredient)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          formData.ingredients.includes(ingredient)
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {ingredient}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Steps & Media */}
+          {currentStep === 'steps' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Steps & Media</h2>
+              
+              {/* Media Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Recipe Media *
+                </label>
+                
+                {!uploadedMedia ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-500 transition-colors">
+                    <input
+                      ref={mediaRef}
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleMediaUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => mediaRef.current?.click()}
+                      className="flex flex-col items-center space-y-4"
+                    >
+                      <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-orange-500" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-medium text-gray-900">Upload Photo or Video</p>
+                        <p className="text-sm text-gray-500">Show your recipe in action</p>
+                      </div>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    {uploadedMedia.type === 'image' ? (
+                      <img
+                        src={uploadedMedia.url}
+                        alt="Recipe"
+                        className="w-full h-64 object-cover rounded-xl"
+                      />
+                    ) : (
+                      <video
+                        src={uploadedMedia.url}
+                        controls
+                        className="w-full h-64 object-cover rounded-xl"
+                      />
+                    )}
+                    <button
+                      onClick={() => setUploadedMedia(null)}
+                      className="absolute top-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Method Steps */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Method Steps *
+                </label>
+                
+                <div className="space-y-4">
+                  {formData.method.map((step, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="flex-1 px-4 py-3 bg-gray-50 rounded-lg text-gray-700">
+                        {step}
+                      </span>
+                      <button
+                        onClick={() => removeMethodStep(index)}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {formData.method.length === 0 && (
+                    <p className="text-gray-500 text-center py-8">
+                      No method steps added yet. Add steps to continue.
+                    </p>
+                  )}
+
+                  <div className="flex space-x-2">
+                    <textarea
+                      value={newMethodStep}
+                      onChange={(e) => setNewMethodStep(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addMethodStep())}
+                      placeholder="Describe this step..."
+                      rows={3}
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none"
+                    />
+                    <button
+                      onClick={() => addMethodStep()}
+                      className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Basic Info Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Title */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Recipe Title *
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => updateFormField('title', e.target.value)}
-                placeholder="Enter recipe title..."
-                maxLength={100}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              />
-              <div className="flex justify-between items-center mt-1">
-                <span className="text-xs text-gray-500">
-                  {formData.title.length}/100 characters
-                </span>
-                {formData.title.length > 80 && (
-                  <span className="text-xs text-orange-600">
-                    Title is getting long
-                  </span>
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between mt-8">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 'details'}
+            className="flex items-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Previous</span>
+          </button>
+
+          <div className="flex items-center space-x-3">
+            {currentStep !== 'steps' ? (
+              <button
+                onClick={nextStep}
+                disabled={!canProceedToNext()}
+                className="flex items-center space-x-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handlePublish}
+                disabled={!canProceedToNext() || isPublishing}
+                className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {isPublishing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    <span>Publishing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Publish Recipe</span>
+                  </>
                 )}
-              </div>
-            </div>
-
-            {/* Cuisine */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cuisine
-              </label>
-              <select
-                value={formData.cuisine}
-                onChange={(e) => updateFormField('cuisine', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              >
-                <option value="">Select cuisine</option>
-                {cuisineOptions.map(cuisine => (
-                  <option key={cuisine} value={cuisine}>{cuisine}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Difficulty */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Difficulty Level
-              </label>
-              <select
-                value={formData.difficulty}
-                onChange={(e) => updateFormField('difficulty', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              >
-                {difficultyOptions.map(difficulty => (
-                  <option key={difficulty} value={difficulty}>{difficulty}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Prep Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Prep Time (minutes)
-              </label>
-              <input
-                type="number"
-                value={formData.prepTime}
-                onChange={(e) => updateFormField('prepTime', parseInt(e.target.value) || 0)}
-                min="0"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              />
-            </div>
-
-            {/* Cook Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cook Time (minutes)
-              </label>
-              <input
-                type="number"
-                value={formData.cookTime}
-                onChange={(e) => updateFormField('cookTime', parseInt(e.target.value) || 0)}
-                min="0"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              />
-            </div>
-
-            {/* Total Time Display */}
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-cookbook-orange" />
-                  <span className="font-medium">Total Time:</span>
-                  <span className="text-lg font-bold text-cookbook-orange">
-                    {totalTime} minutes
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm text-gray-600">
-                    Serves {formData.servings} {formData.servings === 1 ? 'person' : 'people'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Star className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm text-gray-600">
-                    {formData.difficulty} level
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => updateFormField('description', e.target.value)}
-            placeholder="Describe your recipe, cooking tips, or story behind it..."
-            rows={4}
-            maxLength={500}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors resize-none"
-          />
-          <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-gray-500">
-              {formData.description.length}/500 characters
-            </span>
-            {formData.description.length > 400 && (
-              <span className="text-xs text-orange-600">
-                Description is getting long
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Tags */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tags
-          </label>
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {formData.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center space-x-1 bg-cookbook-orange/10 text-cookbook-orange px-3 py-1 rounded-full text-sm font-medium"
-                >
-                  <span>{tag}</span>
-                  <button
-                    onClick={() => removeTag(tag)}
-                    className="ml-1 hover:text-cookbook-orange/70"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                placeholder="Add custom tag..."
-                className="flex-1 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              />
-              <button
-                onClick={addTag}
-                className="px-4 py-3 bg-cookbook-orange text-white rounded-lg hover:bg-cookbook-orange/90 transition-colors font-medium"
-              >
-                Add
               </button>
-            </div>
-
-            <div>
-              <p className="text-xs text-gray-500 mb-2">Suggested tags:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestedTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => !formData.tags.includes(tag) && updateFormField('tags', [...formData.tags, tag])}
-                    disabled={formData.tags.includes(tag)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      formData.tags.includes(tag)
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Ingredients Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Ingredients
-            </h2>
-            <button
-              onClick={() => addIngredient()}
-              className="flex items-center space-x-2 px-4 py-2 bg-cookbook-green text-white rounded-lg hover:bg-cookbook-green/90 transition-colors font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Ingredient</span>
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {formData.ingredients.map((ingredient, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <span className="w-6 h-6 bg-cookbook-orange text-white rounded-full flex items-center justify-center text-sm font-bold">
-                  {index + 1}
-                </span>
-                <span className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
-                  {ingredient}
-                </span>
-                <button
-                  onClick={() => removeIngredient(index)}
-                  className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            
-            {formData.ingredients.length === 0 && (
-              <p className="text-gray-500 text-center py-4">
-                No ingredients added yet. Add ingredients manually.
-              </p>
             )}
-
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={newIngredient}
-                onChange={(e) => setNewIngredient(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
-                placeholder="Enter ingredient..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors"
-              />
-              <button
-                onClick={() => addIngredient()}
-                className="px-4 py-2 bg-cookbook-orange text-white rounded-lg hover:bg-cookbook-orange/90 transition-colors text-sm font-medium"
-              >
-                Add
-              </button>
-            </div>
-
-            {/* Common Ingredients Suggestions */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">Common ingredients:</p>
-              <div className="flex flex-wrap gap-2">
-                {commonIngredients.map((ingredient) => (
-                  <button
-                    key={ingredient}
-                    onClick={() => !formData.ingredients.includes(ingredient) && addIngredient(ingredient)}
-                    disabled={formData.ingredients.includes(ingredient)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      formData.ingredients.includes(ingredient)
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {ingredient}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Method Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Method Steps
-            </h2>
-            <button
-              onClick={() => addMethodStep()}
-              className="flex items-center space-x-2 px-4 py-2 bg-cookbook-green text-white rounded-lg hover:bg-cookbook-green/90 transition-colors font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Step</span>
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {formData.method.map((step, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <span className="w-8 h-8 bg-cookbook-orange text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                  {index + 1}
-                </span>
-                <span className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-gray-700">
-                  {step}
-                </span>
-                <button
-                  onClick={() => removeMethodStep(index)}
-                  className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            
-            {formData.method.length === 0 && (
-              <p className="text-gray-500 text-center py-4">
-                No method steps added yet. Add steps manually.
-              </p>
-            )}
-
-            <div className="flex space-x-2">
-              <textarea
-                value={newMethodStep}
-                onChange={(e) => setNewMethodStep(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addMethodStep())}
-                placeholder="Describe this step..."
-                rows={2}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cookbook-orange focus:border-transparent transition-colors resize-none"
-              />
-              <button
-                onClick={() => addMethodStep()}
-                className="px-4 py-2 bg-cookbook-orange text-white rounded-lg hover:bg-cookbook-orange/90 transition-colors text-sm font-medium"
-              >
-                Add
-              </button>
-            </div>
-
-            {/* Method Templates */}
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">Method templates:</p>
-              <div className="space-y-2">
-                {methodTemplates.map((template, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setNewMethodStep(template)}
-                    className="w-full text-left p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-xs text-gray-700 transition-colors"
-                  >
-                    {template}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recipe Preview */}
-        {formData.title && (formData.ingredients.length > 0 || formData.method.length > 0) && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Recipe Preview
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Title</h3>
-                <p className="text-gray-700">{formData.title}</p>
-              </div>
-              
-              {formData.description && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">Description</h3>
-                  <p className="text-gray-700">{formData.description}</p>
-                </div>
-              )}
-              
-              {formData.tags.length > 0 && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.tags.map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-cookbook-orange/10 text-cookbook-orange rounded-full text-sm">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {formData.ingredients.length > 0 && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">Ingredients ({formData.ingredients.length})</h3>
-                  <ul className="space-y-1">
-                    {formData.ingredients.map((ingredient, index) => (
-                      <li key={index} className="text-gray-700">• {ingredient}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {formData.method.length > 0 && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">Method Steps ({formData.method.length})</h3>
-                  <ol className="space-y-2">
-                    {formData.method.map((step, index) => (
-                      <li key={index} className="text-gray-700">
-                        <span className="font-medium">{index + 1}.</span> {step}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Publish Button */}
-        <div className="sticky bottom-20 bg-white border-t border-gray-200 p-4 -mx-4">
-          <div className="max-w-4xl mx-auto">
-            <button
-              onClick={handlePublish}
-              disabled={!formData.title.trim() || !uploadedMedia || formData.ingredients.length === 0 || formData.method.length === 0 || isPublishing}
-              className="w-full bg-cookbook-orange text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-cookbook-orange/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
-            >
-              {isPublishing ? (
-                <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent" />
-                  <span>Publishing Recipe...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-6 h-6" />
-                  <span>Publish Recipe</span>
-                </>
-              )}
-            </button>
-            <p className="text-center text-sm text-gray-500 mt-2">
-              Your recipe will be shared with the CookBook community
-            </p>
           </div>
         </div>
       </div>

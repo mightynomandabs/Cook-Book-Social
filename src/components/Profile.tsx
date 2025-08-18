@@ -1,40 +1,55 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Settings, Edit, Flame, MapPin, Mail, Phone, Globe, Camera, Heart, Bookmark, Share2, BarChart3, DollarSign, Plus } from 'lucide-react';
+import { Settings, Edit, Camera, Heart, Bookmark, Share2, Plus } from 'lucide-react';
 import { sampleUser } from '../data/sampleRecipe';
 
 const Profile: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'posts' | 'saved' | 'resume'>('posts');
-  const [showCreatorTools, setShowCreatorTools] = useState(false);
+  const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
   
   // In a real app, you'd fetch the user by ID
   const user = sampleUser;
 
-  const getBadgeColor = (color: string) => {
-    switch (color) {
-      case 'orange': return 'bg-cookbook-orange/20 text-cookbook-orange border-cookbook-orange/30';
-      case 'yellow': return 'bg-cookbook-yellow/20 text-cookbook-yellow border-cookbook-yellow/30';
-      case 'green': return 'bg-cookbook-green/20 text-cookbook-green border-cookbook-green/30';
-      default: return 'bg-gray-100 text-gray-600 border-gray-200';
+  // Mock user recipes for MVP
+  const userRecipes = [
+    {
+      id: '1',
+      title: 'Butter Chicken',
+      image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400',
+      likes: 1247,
+      saves: 456
+    },
+    {
+      id: '2',
+      title: 'Homemade Pizza',
+      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400',
+      likes: 892,
+      saves: 234
+    },
+    {
+      id: '3',
+      title: 'Thai Green Curry',
+      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400',
+      likes: 1567,
+      saves: 567
     }
-  };
+  ];
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="relative">
         {/* Cover Image */}
-        <div className="h-48 bg-gradient-to-br from-cookbook-orange/20 via-cookbook-yellow/20 to-cookbook-green/20 relative">
-          <div className="absolute inset-0 bg-black/10" />
+        <div className="h-32 bg-gradient-to-br from-orange-100 via-yellow-100 to-green-100 relative">
+          <div className="absolute inset-0 bg-black/5" />
           
           {/* Profile Actions */}
           <div className="absolute top-4 right-4 flex space-x-2">
-            <button className="p-2 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-colors">
+            <button className="p-2 bg-white/20 backdrop-blur-sm text-gray-700 rounded-full hover:bg-white/30 transition-colors">
               <Share2 className="w-5 h-5" />
             </button>
-            <button className="p-2 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-colors">
+            <button className="p-2 bg-white/20 backdrop-blur-sm text-gray-700 rounded-full hover:bg-white/30 transition-colors">
               <Settings className="w-5 h-5" />
             </button>
           </div>
@@ -45,29 +60,25 @@ const Profile: React.FC = () => {
           <div className="flex items-end space-x-4 -mt-16">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
+              <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
                 <img
                   src={user.avatar}
                   alt={user.name}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <button className="absolute bottom-0 right-0 bg-cookbook-orange text-white p-2 rounded-full hover:bg-cookbook-orange/90 transition-colors">
+              <button className="absolute bottom-0 right-0 bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors">
                 <Camera className="w-4 h-4" />
               </button>
             </div>
 
             {/* User Info */}
             <div className="flex-1 pb-2">
-              <h1 className="text-2xl font-bold text-cookbook-black mb-1">{user.name}</h1>
-              <div className="flex items-center space-x-2 text-gray-600 mb-2">
-                <MapPin className="w-4 h-4" />
-                <span>{user.location}</span>
-              </div>
-              <p className="text-gray-600 mb-3">{user.bio}</p>
+              <h1 className="text-xl font-bold text-gray-900 mb-1">{user.name}</h1>
+              <p className="text-gray-600 mb-3 text-sm">{user.bio}</p>
               
               {/* Follow Button */}
-              <button className="bg-cookbook-orange text-white px-6 py-2 rounded-full font-medium hover:bg-cookbook-orange/90 transition-colors">
+              <button className="bg-orange-500 text-white px-6 py-2 rounded-full font-medium hover:bg-orange-600 transition-colors text-sm">
                 Follow
               </button>
             </div>
@@ -76,110 +87,16 @@ const Profile: React.FC = () => {
           {/* Stats */}
           <div className="flex items-center justify-around py-4 border-t border-gray-100 mt-4">
             <div className="text-center">
-              <div className="text-xl font-bold text-cookbook-black">{user.posts}</div>
+              <div className="text-lg font-bold text-gray-900">{user.posts}</div>
               <div className="text-sm text-gray-600">Posts</div>
             </div>
             <div className="text-center">
-              <div className="text-xl font-bold text-cookbook-black">{user.followers}</div>
+              <div className="text-lg font-bold text-gray-900">{user.followers}</div>
               <div className="text-sm text-gray-600">Followers</div>
             </div>
             <div className="text-center">
-              <div className="text-xl font-bold text-cookbook-black">{user.following}</div>
+              <div className="text-lg font-bold text-gray-900">{user.following}</div>
               <div className="text-sm text-gray-600">Following</div>
-            </div>
-          </div>
-
-          {/* Cooking Level */}
-          <div className="bg-gradient-to-r from-cookbook-orange/10 to-cookbook-yellow/10 rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Flame className="w-5 h-5 text-cookbook-orange" />
-                <span className="font-semibold text-cookbook-black">Cooking Level</span>
-              </div>
-              <span className="text-lg font-bold text-cookbook-orange">{user.cookingLevelTitle}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-gradient-to-r from-cookbook-orange to-cookbook-yellow h-3 rounded-full transition-all duration-300"
-                style={{ width: `${user.cookingLevel}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-sm text-gray-600 mt-1">
-              <span>Beginner</span>
-              <span>Expert</span>
-            </div>
-          </div>
-
-          {/* Badges */}
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-cookbook-black mb-3">Achievements</h3>
-            <div className="flex flex-wrap gap-2">
-              {user.badges.map((badge) => (
-                <div
-                  key={badge.id}
-                  className={`px-3 py-2 rounded-full border text-sm font-medium ${getBadgeColor(badge.color)}`}
-                >
-                  <span className="mr-2">{badge.icon}</span>
-                  {badge.name}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Creator Tools Section */}
-          <div className="mb-4">
-            <div className="bg-gradient-to-r from-cookbook-orange/5 to-cookbook-yellow/5 rounded-xl p-4 border border-cookbook-orange/20">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-cookbook-black">Creator Tools</h3>
-                <button
-                  onClick={() => setShowCreatorTools(!showCreatorTools)}
-                  className="flex items-center space-x-2 px-3 py-1 bg-cookbook-orange/10 text-cookbook-orange rounded-lg hover:bg-cookbook-orange/20 transition-colors text-sm font-medium"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>{showCreatorTools ? 'Hide' : 'Show'} Tools</span>
-                </button>
-              </div>
-              
-              {showCreatorTools && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => navigate('/creator/dashboard')}
-                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
-                    >
-                      <BarChart3 className="w-6 h-6 text-cookbook-orange mb-2" />
-                      <span className="text-sm font-medium text-cookbook-orange">Dashboard</span>
-                    </button>
-                    <button
-                      onClick={() => navigate('/creator/content')}
-                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
-                    >
-                      <Plus className="w-6 h-6 text-cookbook-orange mb-2" />
-                      <span className="text-sm font-medium text-cookbook-orange">Content</span>
-                    </button>
-                    <button
-                      onClick={() => navigate('/creator/monetization')}
-                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
-                    >
-                      <DollarSign className="w-6 h-6 text-cookbook-orange mb-2" />
-                      <span className="text-sm font-medium text-cookbook-orange">Earnings</span>
-                    </button>
-                    <button
-                      onClick={() => navigate('/creator/profile')}
-                      className="flex flex-col items-center py-3 px-2 bg-white/50 rounded-lg hover:bg-white/70 transition-colors border border-cookbook-orange/20"
-                    >
-                      <Edit className="w-6 h-6 text-cookbook-orange mb-2" />
-                      <span className="text-sm font-medium text-cookbook-orange">Creator Profile</span>
-                    </button>
-                  </div>
-                  
-                  <div className="text-center pt-2">
-                    <p className="text-xs text-cookbook-orange/70">
-                      🎯 Access creator analytics, content management, and monetization tools
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -192,8 +109,8 @@ const Profile: React.FC = () => {
             onClick={() => setActiveTab('posts')}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'posts'
-                ? 'bg-cookbook-orange text-white'
-                : 'text-gray-600 hover:text-cookbook-orange'
+                ? 'bg-orange-500 text-white'
+                : 'text-gray-600 hover:text-orange-500'
             }`}
           >
             Posts
@@ -202,21 +119,11 @@ const Profile: React.FC = () => {
             onClick={() => setActiveTab('saved')}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'saved'
-                ? 'bg-cookbook-orange text-white'
-                : 'text-gray-600 hover:text-cookbook-orange'
+                ? 'bg-orange-500 text-white'
+                : 'text-gray-600 hover:text-orange-500'
             }`}
           >
             Saved
-          </button>
-          <button
-            onClick={() => setActiveTab('resume')}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'resume'
-                ? 'bg-cookbook-orange text-white'
-                : 'text-gray-600 hover:text-cookbook-orange'
-            }`}
-          >
-            Foodie Resume
           </button>
         </div>
       </div>
@@ -224,89 +131,70 @@ const Profile: React.FC = () => {
       {/* Tab Content */}
       <div className="px-4 pb-20">
         {activeTab === 'posts' && (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <Camera className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-cookbook-black mb-2">No posts yet</h3>
-            <p className="text-gray-600 mb-4">Share your first recipe with the community!</p>
-            <button className="bg-cookbook-orange text-white px-6 py-3 rounded-xl font-medium hover:bg-cookbook-orange/90 transition-colors">
-              Create Your First Post
-            </button>
+          <div>
+            {userRecipes.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {userRecipes.map((recipe) => (
+                  <div key={recipe.id} className="relative group cursor-pointer">
+                    <img
+                      src={recipe.image}
+                      alt={recipe.title}
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-center">
+                        <div className="flex items-center justify-center space-x-4 mb-2">
+                          <div className="flex items-center space-x-1">
+                            <Heart className="w-4 h-4" />
+                            <span className="text-sm">{recipe.likes}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Bookmark className="w-4 h-4" />
+                            <span className="text-sm">{recipe.saves}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium">{recipe.title}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <Camera className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
+                <p className="text-gray-600 mb-4">Share your first recipe with the community!</p>
+                <button 
+                  onClick={() => navigate('/create')}
+                  className="bg-orange-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-orange-600 transition-colors"
+                >
+                  Create Your First Post
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'saved' && (
-          <div className="text-center py-8">
+          <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <Bookmark className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-cookbook-black mb-2">No saved recipes</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No saved recipes</h3>
             <p className="text-gray-600">Save recipes you love to cook later!</p>
           </div>
         )}
-
-        {activeTab === 'resume' && (
-          <div className="space-y-6 py-4">
-            {/* Skills */}
-            <div>
-              <h3 className="text-lg font-semibold text-cookbook-black mb-3">Cooking Skills</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {user.interests.map((skill) => (
-                  <div key={skill} className="bg-gray-50 p-3 rounded-xl text-center">
-                    <span className="font-medium text-cookbook-black">{skill}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Dietary Preferences */}
-            <div>
-              <h3 className="text-lg font-semibold text-cookbook-black mb-3">Dietary Preferences</h3>
-              <div className="flex flex-wrap gap-2">
-                {user.dietaryPreferences.map((diet) => (
-                  <span
-                    key={diet}
-                    className="px-3 py-2 bg-cookbook-green/20 text-cookbook-green rounded-full text-sm font-medium"
-                  >
-                    {diet}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Languages */}
-            <div>
-              <h3 className="text-lg font-semibold text-cookbook-black mb-3">Languages</h3>
-              <div className="flex flex-wrap gap-2">
-                {user.preferredLanguages.map((lang) => (
-                  <span
-                    key={lang}
-                    className="px-3 py-2 bg-cookbook-yellow/20 text-cookbook-yellow rounded-full text-sm font-medium"
-                  >
-                    {lang}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h3 className="text-lg font-semibold text-cookbook-black mb-3">Contact Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                  <Mail className="w-5 h-5 text-cookbook-orange" />
-                  <span className="text-gray-700">{user.email}</span>
-                </div>
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                  <MapPin className="w-5 h-5 text-cookbook-green" />
-                  <span className="text-gray-700">{user.location}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Floating Action Button for Create */}
+      <button
+        onClick={() => navigate('/create')}
+        className="fixed bottom-20 right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   );
 };
