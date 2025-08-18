@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Heart, Bookmark, Share2, ShoppingCart, Timer } from 'lucide-react';
+import { ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Heart, Bookmark, Share2, ShoppingCart, Timer, Star, Play, ArrowUpRight, Fire, Nut, Bowl, Beef } from 'lucide-react';
 import { simpleRecipes, SimpleRecipe } from '../data/simpleRecipes';
 
 interface RecipeReelsProps {
@@ -9,7 +9,6 @@ interface RecipeReelsProps {
 const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -18,7 +17,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [showTimer, setShowTimer] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(15);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // in seconds
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
   const [achievements, setAchievements] = useState<string[]>([]);
   const [showAchievement, setShowAchievement] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,7 +76,6 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
         console.log('Error sharing:', error);
       }
     } else {
-      // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(`Check out this amazing ${recipe.title} recipe by ${recipe.creator}!`);
       alert('Recipe link copied to clipboard! 📋');
     }
@@ -91,11 +89,9 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          // Timer finished
           setIsTimerRunning(false);
           if (timerRef.current) clearInterval(timerRef.current);
           
-          // Play notification sound or show alert
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('Timer Complete!', {
               body: `Your ${timerMinutes} minute timer is done!`,
@@ -138,29 +134,24 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const checkAchievements = (recipe: SimpleRecipe) => {
     const newAchievements: string[] = [];
     
-    // First recipe viewed
     if (achievements.length === 0) {
       newAchievements.push('First Steps');
     }
     
-    // Different cuisines explored
     const cuisineCount = new Set(simpleRecipes.map(r => r.category)).size;
     if (cuisineCount >= 3 && !achievements.includes('World Explorer')) {
       newAchievements.push('World Explorer');
     }
     
-    // Difficulty progression
     if (recipe.difficulty === 'Hard' && !achievements.includes('Master Chef')) {
       newAchievements.push('Master Chef');
     }
     
-    // Recipe count milestones
     const viewedCount = achievements.length + 1;
     if (viewedCount >= 5 && !achievements.includes('Recipe Hunter')) {
       newAchievements.push('Recipe Hunter');
     }
     
-    // Check for new achievements
     newAchievements.forEach(achievement => {
       if (!achievements.includes(achievement)) {
         setShowAchievement(achievement);
@@ -168,20 +159,17 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
       }
     });
     
-    // Update achievements - simple array concatenation
     if (newAchievements.length > 0) {
       setAchievements(prev => [...prev, ...newAchievements]);
     }
   };
 
-  // Check achievements when recipe changes
   useEffect(() => {
     if (currentRecipe) {
       checkAchievements(currentRecipe);
     }
   }, [currentRecipe]);
 
-  // Handle wheel scroll for recipe navigation
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     if (e.deltaY > 0 && currentIndex < filteredRecipes.length - 1) {
@@ -193,7 +181,6 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
     }
   };
 
-  // Handle touch/swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     const startX = touch.clientX;
@@ -204,33 +191,28 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
       const deltaX = touch.clientX - startX;
       const deltaY = touch.clientY - startY;
 
-      // Detect horizontal swipe with better threshold
-             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
-         if (deltaX > 0) {
-           // Swipe right - show details
-           setShowDetails(true);
-         } else {
-           // Swipe left - hide details
-           setShowDetails(false);
-         }
-       }
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+        if (deltaX > 0) {
+          setShowDetails(true);
+        } else {
+          setShowDetails(false);
+        }
+      }
     };
 
-         const handleTouchEnd = () => {
-       document.removeEventListener('touchmove', handleTouchMove);
-       document.removeEventListener('touchend', handleTouchEnd);
-     };
+    const handleTouchEnd = () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
 
     document.addEventListener('touchmove', handleTouchMove);
     document.addEventListener('touchend', handleTouchEnd);
   };
 
-  // Add click handler for better mobile experience
   const handleRecipeClick = () => {
     setShowDetails(!showDetails);
   };
 
-  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp' && currentIndex > 0) {
@@ -265,69 +247,75 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   };
 
   return (
-    <div className="h-screen bg-black overflow-hidden relative">
+    <div className="h-screen bg-dark-primary overflow-hidden relative">
       {/* Achievement Toast */}
       {showAchievement && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg animate-bounce">
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 pink-gradient text-white px-6 py-3 rounded-full shadow-lg animate-bounce">
           <div className="flex items-center space-x-2">
             <span className="text-2xl">🏆</span>
             <span className="font-bold">Achievement Unlocked: {showAchievement}</span>
           </div>
         </div>
       )}
+
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-3 sm:p-4 md:p-6">
+      <div className="absolute top-0 left-0 right-0 z-20 p-4">
         {/* Top Row */}
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xs sm:text-sm">🍳</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-white font-bold text-base sm:text-lg hidden sm:block">CookBook</span>
-            <span className="text-white font-bold text-sm sm:hidden">CB</span>
+            <span className="text-white font-bold text-lg">Santiago ></span>
           </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-3">
             <button 
               onClick={() => setShowSearch(!showSearch)}
-              className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="w-8 h-8 glass-effect rounded-full flex items-center justify-center hover:glass-effect-hover transition-all"
             >
-              <Search className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              <Search className="w-4 h-4 text-white" />
             </button>
             <button 
               onClick={() => onCreateClick()}
-              className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="w-8 h-8 glass-effect rounded-full flex items-center justify-center hover:glass-effect-hover transition-all"
             >
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              <Plus className="w-4 h-4 text-white" />
             </button>
+            <div className="relative">
+              <button className="w-8 h-8 purple-gradient rounded-full flex items-center justify-center text-white font-bold text-sm">
+                458
+              </button>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+            </div>
           </div>
         </div>
 
         {/* Search Bar */}
         {showSearch && (
-          <div className="mb-3 sm:mb-4">
+          <div className="mb-4">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search recipes, ingredients, or creators..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 pl-10 sm:pl-12 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
+                className="w-full px-4 py-3 pl-12 glass-effect rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 text-base"
               />
-              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
             
             {/* Difficulty Filter */}
             <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="text-white/80 text-xs sm:text-sm">Difficulty:</span>
+              <span className="text-gray-300 text-sm">Difficulty:</span>
               {['all', 'Easy', 'Medium', 'Hard'].map((difficulty) => (
                 <button
                   key={difficulty}
                   onClick={() => setSelectedDifficulty(difficulty)}
-                  className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     selectedDifficulty === difficulty
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-white/20 text-white/80 hover:bg-white/30'
+                      ? 'pink-gradient text-white'
+                      : 'glass-effect text-gray-300 hover:glass-effect-hover'
                   }`}
                 >
                   {difficulty === 'all' ? 'All' : difficulty}
@@ -336,207 +324,123 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             </div>
           </div>
         )}
-
-        {/* Recipe Counter */}
-        <div className="flex items-center justify-between">
-          <span className="text-white/80 text-xs sm:text-sm">
-            {filteredRecipes.length > 0 ? `${currentIndex + 1} / ${filteredRecipes.length}` : 'No recipes found'}
-          </span>
-          
-          {/* Quick Actions */}
-          <div className="flex items-center space-x-2">
-            {filteredRecipes.length > 0 && (
-              <button
-                onClick={() => setShowDetails(!showDetails)}
-                className="px-2 sm:px-3 py-1 bg-white/20 text-white text-xs rounded-full hover:bg-white/30 transition-colors"
-              >
-                {showDetails ? 'Hide Details' : 'Show Details'}
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}
       <div 
         ref={containerRef}
-        className="h-full flex items-center justify-center relative"
+        className="h-full flex items-center justify-center relative pt-20"
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
       >
         {/* Empty State */}
         {filteredRecipes.length === 0 && (
           <div className="text-center text-white">
-            <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-24 h-24 glass-effect rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">🔍</span>
             </div>
             <h2 className="text-2xl font-bold mb-2">No recipes found</h2>
-            <p className="text-white/70 mb-6">Try adjusting your search or filters</p>
+            <p className="text-gray-400 mb-6">Try adjusting your search or filters</p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedDifficulty('all');
               }}
-              className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
+              className="px-6 py-3 pink-gradient text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
             >
               Clear Filters
             </button>
           </div>
         )}
 
-        {/* Trending & Collections */}
+        {/* Recipe Discovery Interface */}
         {filteredRecipes.length > 0 && !showDetails && (
-          <div className="absolute top-1/2 left-2 sm:left-4 transform -translate-y-1/2 text-white/80">
-            {/* Trending Badge */}
-            <div className="mb-3 sm:mb-4 text-center">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mb-2 mx-auto">
-                <span className="text-white text-sm sm:text-lg">🔥</span>
+          <div className="w-full max-w-md px-4">
+            {/* Recipe of the Day */}
+            <div className="text-center mb-6">
+              <h2 className="text-white/80 text-sm font-medium mb-2">RECIPE OF THE DAY</h2>
+              <div className="relative">
+                <div className="w-full h-64 rounded-2xl overflow-hidden mb-4">
+                  <img 
+                    src={currentRecipe.image} 
+                    alt={currentRecipe.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span className="text-white text-sm font-bold">+75</span>
+                  </div>
+                </div>
+                
+                <div className="text-left">
+                  <h3 className="text-xl font-bold text-white mb-2">{currentRecipe.title}</h3>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="w-4 h-4 star-rating fill-current" />
+                      ))}
+                    </div>
+                    <span className="text-gray-400 text-sm">4.6</span>
+                  </div>
+                </div>
               </div>
-              <span className="text-xs font-medium hidden sm:block">Trending</span>
             </div>
-            
-            {/* Quick Collections */}
-            <div className="space-y-2 sm:space-y-3">
-              {['Quick & Easy', 'Chef Specials', 'Healthy Options'].map((collection, index) => (
-                <button
-                  key={collection}
-                  onClick={() => {
-                    // Filter by collection type
-                    if (collection === 'Quick & Easy') {
-                      setSelectedDifficulty('Easy');
-                    } else if (collection === 'Chef Specials') {
-                      setSelectedDifficulty('Hard');
-                    } else if (collection === 'Healthy Options') {
-                      // Filter by healthy ingredients - placeholder for future implementation
-                      // This would need more sophisticated filtering in a real app
-                    }
-                  }}
-                  className="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
-                  title={collection}
-                >
-                  <span className="text-white text-sm sm:text-lg">
-                    {collection === 'Quick & Easy' ? '⚡' : 
-                     collection === 'Chef Specials' ? '👨‍🍳' : '🥗'}
-                  </span>
+
+            {/* Random Recipe Card */}
+            <div className="glass-effect rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                    <span className="text-xl">🎲</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">Random recipe</h4>
+                    <p className="text-gray-400 text-sm">Don't know what to cook?</p>
+                  </div>
+                </div>
+                <button className="w-10 h-10 pink-gradient rounded-full flex items-center justify-center">
+                  <ArrowUpRight className="w-5 h-5 text-white" />
                 </button>
+              </div>
+            </div>
+
+            {/* Recipe Thumbnails */}
+            <div className="grid grid-cols-2 gap-3">
+              {filteredRecipes.slice(0, 4).map((recipe, index) => (
+                <div key={recipe.id} className="glass-effect rounded-xl overflow-hidden">
+                  <div className="w-full h-20">
+                    <img 
+                      src={recipe.image} 
+                      alt={recipe.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-2">
+                    <h5 className="text-white text-sm font-medium line-clamp-1">{recipe.title}</h5>
+                    <p className="text-gray-400 text-xs">{recipe.creator}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Recipe Reel */}
-        {filteredRecipes.length > 0 && (
-          <div 
-            className="relative w-full h-full max-w-sm sm:max-w-md cursor-pointer"
-            onClick={handleRecipeClick}
-          >
-            {/* Recipe Image */}
-            <div className="absolute inset-0">
-              <img 
-                src={currentRecipe.image} 
-                alt={currentRecipe.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            </div>
-
-            {/* Recipe Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-white">
-              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">
-                    {currentRecipe.creator.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-                <span className="font-semibold text-sm sm:text-base">{currentRecipe.creator}</span>
-              </div>
-              
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3">{currentRecipe.title}</h2>
-              
-              <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>{currentRecipe.time}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <ChefHat className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>{currentRecipe.difficulty}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Action Buttons */}
-            <div className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 sm:space-y-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLike(currentRecipe.id);
-                }}
-                className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  likedRecipes.has(currentRecipe.id)
-                    ? 'bg-red-500 text-white scale-110'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                <Heart className={`w-4 h-4 sm:w-6 sm:h-6 ${likedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSave(currentRecipe.id);
-                }}
-                className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  savedRecipes.has(currentRecipe.id)
-                    ? 'bg-orange-500 text-white scale-110'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                <Bookmark className={`w-4 h-4 sm:w-6 sm:h-6 ${savedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShare(currentRecipe);
-                }}
-                className="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
-              >
-                <Share2 className="w-4 h-4 sm:w-6 sm:h-6" />
-              </button>
-            </div>
-
-            {/* Swipe Hint */}
-            <div className="absolute top-1/2 left-2 sm:left-4 transform -translate-y-1/2 text-white/60 text-center">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 border-2 border-white/30 rounded-full flex items-center justify-center mb-1 sm:mb-2">
-                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-              </div>
-              <span className="text-xs hidden sm:block">Swipe right</span>
-            </div>
-          </div>
-        )}
-
-        {/* Details Panel (Left Swipe) */}
-        {filteredRecipes.length > 0 && (
-          <div 
-            className={`absolute inset-0 bg-white transform transition-transform duration-300 ease-out ${
-              showDetails ? 'translate-x-0' : 'translate-x-full'
-            }`}
-          >
-            <div className="h-full overflow-y-auto p-3 sm:p-4 md:p-6">
+        {/* Recipe Details Panel */}
+        {filteredRecipes.length > 0 && showDetails && (
+          <div className="absolute inset-0 bg-dark-secondary transform transition-transform duration-300 ease-out translate-x-0">
+            <div className="h-full overflow-y-auto p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <button 
                   onClick={() => setShowDetails(false)}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                  className="w-10 h-10 glass-effect rounded-full flex items-center justify-center hover:glass-effect-hover transition-all"
                 >
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <ChevronRight className="w-5 h-5 text-white" />
                 </button>
-                <span className="text-xs sm:text-sm text-gray-500">Recipe Details</span>
+                <span className="text-sm text-gray-400">Recipe Details</span>
               </div>
 
               {/* Recipe Image */}
-              <div className="w-full h-32 sm:h-40 md:h-48 rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6">
+              <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
                 <img 
                   src={currentRecipe.image} 
                   alt={currentRecipe.title}
@@ -545,231 +449,113 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               </div>
 
               {/* Recipe Info */}
-              <div className="mb-4 sm:mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold mb-2">{currentRecipe.title}</h1>
-                <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">by {currentRecipe.creator}</p>
-                
-                <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>{currentRecipe.time}</span>
+              <div className="mb-6">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-gray-400 text-sm">BY {currentRecipe.creator.toUpperCase()}</span>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                    <span className="text-white text-xs font-bold">+75</span>
                   </div>
+                </div>
+                
+                <h1 className="text-2xl font-bold text-white mb-3">{currentRecipe.title}</h1>
+                
+                <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
                   <div className="flex items-center space-x-1">
-                    <ChefHat className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>{currentRecipe.difficulty}</span>
+                    <Star className="w-4 h-4 star-rating fill-current" />
+                    <Star className="w-4 h-4 star-rating fill-current" />
+                    <Star className="w-4 h-4 star-rating fill-current" />
+                    <Star className="w-4 h-4 star-rating fill-current" />
+                  </div>
+                  <span>{currentRecipe.time}</span>
+                  <span>{currentRecipe.difficulty}</span>
+                </div>
+
+                {/* AI Sous Chef Banner */}
+                <div className="pink-gradient rounded-2xl p-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <ChefHat className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold">Start cooking!</h4>
+                        <p className="text-white/90 text-sm">Our AI sous chef will help you.</p>
+                      </div>
+                    </div>
+                    <button className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                      <Play className="w-6 h-6 text-white" />
+                    </button>
                   </div>
                 </div>
 
-                 {/* Cooking Timer */}
-                 <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-orange-50 rounded-xl">
-                   <div className="flex items-center justify-between mb-2 sm:mb-3">
-                     <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
-                       <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
-                       <span className="text-sm sm:text-base">Cooking Timer</span>
-                     </h4>
-                     <button
-                       onClick={() => setShowTimer(!showTimer)}
-                       className="text-orange-500 hover:text-orange-600 text-xs sm:text-sm font-medium"
-                     >
-                       {showTimer ? 'Hide' : 'Show'}
-                     </button>
-                   </div>
-                   
-                   {showTimer && (
-                     <div className="space-y-2 sm:space-y-3">
-                       <div className="flex items-center space-x-2 sm:space-x-3">
-                         <input
-                           type="range"
-                           min="1"
-                           max="60"
-                           value={timerMinutes}
-                           onChange={(e) => setTimerMinutes(Number(e.target.value))}
-                           className="flex-1"
-                           disabled={isTimerRunning}
-                         />
-                         <span className="text-base sm:text-lg font-bold text-gray-800 min-w-[2.5rem] sm:min-w-[3rem]">
-                           {timerMinutes}m
-                         </span>
-                       </div>
-                       
-                       {isTimerRunning && (
-                         <div className="text-center">
-                           <div className="text-xl sm:text-2xl font-bold text-orange-500">
-                             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                           </div>
-                         </div>
-                       )}
-                       
-                       <div className="flex space-x-2">
-                         {!isTimerRunning ? (
-                           <button
-                             onClick={startTimer}
-                             className="flex-1 bg-orange-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors text-xs sm:text-sm"
-                           >
-                             Start Timer
-                           </button>
-                         ) : (
-                           <>
-                             <button
-                               onClick={stopTimer}
-                               className="flex-1 bg-red-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-red-600 transition-colors text-xs sm:text-sm"
-                             >
-                               Pause
-                             </button>
-                             <button
-                               onClick={resetTimer}
-                               className="flex-1 bg-gray-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors text-xs sm:text-sm"
-                             >
-                               Reset
-                             </button>
-                           </>
-                         )}
-                       </div>
-                     </div>
-                   )}
-                 </div>
-              </div>
-
-              {/* Ingredients */}
-              <div className="mb-4 sm:mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
-                  <h3 className="text-base sm:text-lg font-semibold">Ingredients</h3>
-                  
-                  {/* Quick Order All Button */}
-                  <button
-                    onClick={() => {
-                      const allIngredients = currentRecipe.ingredients.join(', ');
-                      const searchQuery = encodeURIComponent(allIngredients);
-                      // Open Blinkit by default for bulk order
-                      window.open(`https://blinkit.com/search?q=${searchQuery}`, '_blank');
-                    }}
-                    className="px-2 sm:px-3 py-1 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-1 self-start sm:self-auto"
-                  >
-                    <ShoppingCart className="w-3 h-3" />
-                    <span>Quick Order All</span>
-                  </button>
+                {/* Navigation Tabs */}
+                <div className="flex space-x-1 mb-6">
+                  {['Overview', 'Ingredients 15', 'Directions'].map((tab, index) => (
+                    <button
+                      key={tab}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        index === 1 
+                          ? 'pink-gradient text-white' 
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
                 </div>
-                
-                {/* Info Text */}
-                <p className="text-xs sm:text-sm text-gray-500 mb-3">
-                  Click on any delivery service below to order ingredients directly
-                </p>
-                
-                <ul className="space-y-3 sm:space-y-4">
-                  {currentRecipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="space-y-2">
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span className="text-gray-700 font-medium text-sm sm:text-base">{ingredient}</span>
-                      </div>
-                      
-                      {/* Delivery Service Options */}
-                      <div className="ml-4 sm:ml-5 flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-gray-500">Get on:</span>
-                        
-                        {/* Blinkit */}
-                        <button
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(ingredient);
-                            window.open(`https://blinkit.com/search?q=${searchQuery}`, '_blank');
-                          }}
-                          className="px-2 py-1 bg-green-500 text-white text-xs rounded-md hover:bg-green-600 transition-colors flex items-center space-x-1"
-                          title="Order from Blinkit (10 min delivery)"
-                        >
-                          <span className="w-2 h-2 bg-white rounded-full"></span>
-                          <span>Blinkit</span>
-                        </button>
-                        
-                        {/* Instamart */}
-                        <button
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(ingredient);
-                            window.open(`https://www.zepto.in/search?q=${searchQuery}`, '_blank');
-                          }}
-                          className="px-2 py-1 bg-blue-500 text-white text-xs rounded-md hover:bg-blue-600 transition-colors flex items-center space-x-1"
-                          title="Order from Instamart (15 min delivery)"
-                        >
-                          <span className="w-2 h-2 bg-white rounded-full"></span>
-                          <span>Instamart</span>
-                        </button>
-                        
-                        {/* Zepto */}
-                        <button
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(ingredient);
-                            window.open(`https://www.zepto.in/search?q=${searchQuery}`, '_blank');
-                          }}
-                          className="px-2 py-1 bg-purple-500 text-white text-xs rounded-md hover:bg-purple-600 transition-colors flex items-center space-x-1"
-                          title="Order from Zepto (10 min delivery)"
-                        >
-                          <span className="w-2 h-2 bg-white rounded-full"></span>
-                          <span>Zepto</span>
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
 
-              {/* Method */}
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Method</h3>
-                <ol className="space-y-2 sm:space-y-3">
-                  {currentRecipe.method.map((step, index) => (
-                    <li key={index} className="flex space-x-2 sm:space-x-3">
-                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
-                        {index + 1}
-                      </span>
-                      <span className="text-gray-700 text-sm sm:text-base">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
+                {/* Nutritional Value */}
+                <div className="glass-effect rounded-2xl p-4 mb-6">
+                  <h4 className="text-white font-semibold mb-3">The nutritional value</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center">
+                      <div className="nutrition-icon nutrition-fire">
+                        <Fire className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-white text-sm">176 kcal</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="nutrition-icon nutrition-fat">
+                        <Nut className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-white text-sm">4g fat</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="nutrition-icon nutrition-carbs">
+                        <Bowl className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-white text-sm">19g carbo</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="nutrition-icon nutrition-protein">
+                        <Beef className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-white text-sm">17g prot</span>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Recipe Recommendations */}
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">You Might Also Like</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {simpleRecipes
-                    .filter(recipe => 
-                      recipe.id !== currentRecipe.id && 
-                      (recipe.category === currentRecipe.category || 
-                       recipe.difficulty === currentRecipe.difficulty ||
-                       recipe.ingredients.some(ing => 
-                         currentRecipe.ingredients.some(currIng => 
-                           currIng.toLowerCase().includes(ing.toLowerCase().split(' ')[0]) ||
-                           ing.toLowerCase().includes(currIng.toLowerCase().split(' ')[0])
-                         )
-                       ))
-                    )
-                    .slice(0, 4)
-                    .map((recipe) => (
-                      <button
-                        key={recipe.id}
-                        onClick={() => {
-                          const recipeIndex = simpleRecipes.findIndex(r => r.id === recipe.id);
-                          if (recipeIndex !== -1) {
-                            setCurrentIndex(recipeIndex);
-                            setShowDetails(false);
-                          }
-                        }}
-                        className="text-left bg-gray-50 rounded-xl p-2 sm:p-3 hover:bg-gray-100 transition-colors group"
-                      >
-                        <div className="w-full h-16 sm:h-20 rounded-lg overflow-hidden mb-2">
-                          <img 
-                            src={recipe.image} 
-                            alt={recipe.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
+                {/* Servings */}
+                <div className="glass-effect rounded-2xl p-4 mb-6">
+                  <h4 className="text-white font-semibold mb-2">Servings</h4>
+                  <span className="text-white text-2xl font-bold">8</span>
+                </div>
+
+                {/* Ingredients */}
+                <div className="glass-effect rounded-2xl p-4">
+                  <h4 className="text-white font-semibold mb-3">Ingredients</h4>
+                  <div className="space-y-3">
+                    {currentRecipe.ingredients.slice(0, 5).map((ingredient, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <div className={`w-5 h-5 rounded-full border-2 ${
+                          index === 4 ? 'border-green-500 bg-green-500' : 'border-gray-400'
+                        } flex items-center justify-center`}>
+                          {index === 4 && <div className="w-2 h-2 bg-white rounded-full"></div>}
                         </div>
-                        <h4 className="font-semibold text-xs sm:text-sm text-gray-800 mb-1 line-clamp-1">{recipe.title}</h4>
-                        <p className="text-xs text-gray-500">{recipe.creator}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500">{recipe.time}</span>
-                          <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full">{recipe.difficulty}</span>
-                        </div>
-                      </button>
+                        <span className="text-white text-sm">{ingredient}</span>
+                      </div>
                     ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -779,7 +565,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
       {/* Navigation Dots */}
       {filteredRecipes.length > 0 && (
-        <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2">
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2">
           {filteredRecipes.map((_, index) => (
             <button
               key={index}
@@ -787,7 +573,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                 setCurrentIndex(index);
                 setShowDetails(false);
               }}
-              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${
+              className={`w-2 h-2 rounded-full transition-colors ${
                 index === currentIndex ? 'bg-white' : 'bg-white/30'
               }`}
             />
@@ -797,20 +583,20 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
       {/* Navigation Buttons */}
       {filteredRecipes.length > 0 && (
-        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 sm:space-x-4">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-4">
           <button
             onClick={prevRecipe}
             disabled={currentIndex === 0}
-            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
+            className="w-12 h-12 glass-effect rounded-full flex items-center justify-center disabled:opacity-50 hover:glass-effect-hover transition-all"
           >
-            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <ChevronUp className="w-6 h-6 text-white" />
           </button>
           <button
             onClick={nextRecipe}
             disabled={currentIndex === filteredRecipes.length - 1}
-            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
+            className="w-12 h-12 glass-effect rounded-full flex items-center justify-center disabled:opacity-50 hover:glass-effect-hover transition-all"
           >
-            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <ChevronDown className="w-6 h-6 text-white" />
           </button>
         </div>
       )}

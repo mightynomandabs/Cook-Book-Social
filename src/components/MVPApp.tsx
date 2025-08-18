@@ -18,61 +18,61 @@ const MVPApp: React.FC = () => {
         return <SimpleRecipeCreate onBackToFeed={handleBackToFeed} />;
       case 'profile':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 sm:p-4">
+          <div className="min-h-screen bg-dark-primary p-4">
             <div className="max-w-2xl mx-auto">
               {/* Profile Header */}
-              <div className="text-center mb-6 sm:mb-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <span className="text-white text-2xl sm:text-3xl md:text-4xl">👨‍🍳</span>
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-3xl">👨‍🍳</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Home Chef</h1>
-                <p className="text-sm sm:text-base text-slate-600">Ready to cook amazing recipes!</p>
+                <h1 className="text-3xl font-bold text-white mb-2">Home Chef</h1>
+                <p className="text-gray-400">Ready to cook amazing recipes!</p>
               </div>
 
               {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
-                <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
-                  <div className="text-lg sm:text-2xl font-bold text-orange-500">8</div>
-                  <div className="text-xs sm:text-sm text-slate-600">Recipes</div>
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="glass-effect rounded-2xl p-4 text-center">
+                  <div className="text-2xl font-bold text-pink-500">8</div>
+                  <div className="text-sm text-gray-400">Recipes</div>
                 </div>
-                <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
-                  <div className="text-lg sm:text-2xl font-bold text-green-500">3</div>
-                  <div className="text-xs sm:text-sm text-slate-600">Categories</div>
+                <div className="glass-effect rounded-2xl p-4 text-center">
+                  <div className="text-2xl font-bold text-green-500">3</div>
+                  <div className="text-sm text-gray-400">Categories</div>
                 </div>
-                <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
-                  <div className="text-lg sm:text-2xl font-bold text-blue-500">4</div>
-                  <div className="text-xs sm:text-sm text-slate-600">Achievements</div>
+                <div className="glass-effect rounded-2xl p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-500">4</div>
+                  <div className="text-sm text-gray-400">Achievements</div>
                 </div>
               </div>
 
               {/* Achievements Section */}
-              <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center space-x-2">
-                  <span className="text-xl sm:text-2xl">🏆</span>
+              <div className="glass-effect rounded-2xl p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2 text-white">
+                  <span className="text-2xl">🏆</span>
                   <span>Achievements</span>
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { name: 'First Steps', icon: '👣', description: 'View your first recipe', unlocked: true },
                     { name: 'World Explorer', icon: '🌍', description: 'Explore 3+ cuisines', unlocked: true },
                     { name: 'Master Chef', icon: '👨‍🍳', description: 'Try a hard recipe', unlocked: false },
                     { name: 'Recipe Hunter', icon: '🔍', description: 'View 5+ recipes', unlocked: false }
                   ].map((achievement, index) => (
-                    <div key={index} className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 ${
+                    <div key={index} className={`p-3 rounded-xl border-2 ${
                       achievement.unlocked 
-                        ? 'border-orange-200 bg-orange-50' 
-                        : 'border-gray-200 bg-gray-50'
+                        ? 'border-pink-500/30 bg-pink-500/10' 
+                        : 'border-gray-600 bg-gray-800/50'
                     }`}>
                       <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-base sm:text-lg">{achievement.icon}</span>
-                        <span className={`font-medium text-xs sm:text-sm ${
-                          achievement.unlocked ? 'text-orange-700' : 'text-gray-500'
+                        <span className="text-lg">{achievement.icon}</span>
+                        <span className={`font-medium text-sm ${
+                          achievement.unlocked ? 'text-pink-400' : 'text-gray-500'
                         }`}>
                           {achievement.name}
                         </span>
                       </div>
                       <p className={`text-xs ${
-                        achievement.unlocked ? 'text-orange-600' : 'text-gray-400'
+                        achievement.unlocked ? 'text-pink-300' : 'text-gray-600'
                       }`}>
                         {achievement.description}
                       </p>
@@ -82,11 +82,11 @@ const MVPApp: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2 sm:space-y-3">
-                <button onClick={() => setCurrentTab('create')} className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-orange-600 transition-colors text-sm sm:text-base">
+              <div className="space-y-3">
+                <button onClick={() => setCurrentTab('create')} className="w-full px-6 py-3 pink-gradient text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
                   Create Your First Recipe
                 </button>
-                <button onClick={() => setCurrentTab('feed')} className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 rounded-lg sm:rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base">
+                <button onClick={() => setCurrentTab('feed')} className="w-full px-6 py-3 glass-effect text-white rounded-xl font-semibold hover:glass-effect-hover transition-all">
                   Browse More Recipes
                 </button>
               </div>

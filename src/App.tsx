@@ -7,7 +7,7 @@ function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <div className="App font-inter bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300">
+        <div className="App font-inter bg-dark-primary min-h-screen transition-colors duration-300">
           <MVPApp />
         </div>
       </ErrorBoundary>
