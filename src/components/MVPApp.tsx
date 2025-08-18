@@ -40,7 +40,7 @@ const MVPApp: React.FC = () => {
                   <div className="text-sm text-slate-600">Categories</div>
                 </div>
                 <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
-                  <div className="text-2xl font-bold text-blue-500">5</div>
+                                              <div className="text-2xl font-bold text-blue-500">4</div>
                   <div className="text-sm text-slate-600">Achievements</div>
                 </div>
               </div>

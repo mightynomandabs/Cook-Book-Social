@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Filter, Heart, Bookmark, Share2, ShoppingCart, Timer, Volume2 } from 'lucide-react';
+import { ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Heart, Bookmark, Share2, ShoppingCart, Timer } from 'lucide-react';
 import { simpleRecipes, SimpleRecipe } from '../data/simpleRecipes';
 
 interface RecipeReelsProps {
@@ -9,7 +9,7 @@ interface RecipeReelsProps {
 const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -19,7 +19,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [timerMinutes, setTimerMinutes] = useState(15);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60); // in seconds
-  const [achievements, setAchievements] = useState<Set<string>>(new Set());
+  const [achievements, setAchievements] = useState<string[]>([]);
   const [showAchievement, setShowAchievement] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -136,40 +136,42 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
   // Achievement system
   const checkAchievements = (recipe: SimpleRecipe) => {
-    const newAchievements = new Set<string>();
+    const newAchievements: string[] = [];
     
     // First recipe viewed
-    if (achievements.size === 0) {
-      newAchievements.add('First Steps');
+    if (achievements.length === 0) {
+      newAchievements.push('First Steps');
     }
     
     // Different cuisines explored
     const cuisineCount = new Set(simpleRecipes.map(r => r.category)).size;
-    if (cuisineCount >= 3 && !achievements.has('World Explorer')) {
-      newAchievements.add('World Explorer');
+    if (cuisineCount >= 3 && !achievements.includes('World Explorer')) {
+      newAchievements.push('World Explorer');
     }
     
     // Difficulty progression
-    if (recipe.difficulty === 'Hard' && !achievements.has('Master Chef')) {
-      newAchievements.add('Master Chef');
+    if (recipe.difficulty === 'Hard' && !achievements.includes('Master Chef')) {
+      newAchievements.push('Master Chef');
     }
     
     // Recipe count milestones
-    const viewedCount = achievements.size + 1;
-    if (viewedCount >= 5 && !achievements.has('Recipe Hunter')) {
-      newAchievements.add('Recipe Hunter');
+    const viewedCount = achievements.length + 1;
+    if (viewedCount >= 5 && !achievements.includes('Recipe Hunter')) {
+      newAchievements.push('Recipe Hunter');
     }
     
     // Check for new achievements
     newAchievements.forEach(achievement => {
-      if (!achievements.has(achievement)) {
+      if (!achievements.includes(achievement)) {
         setShowAchievement(achievement);
         setTimeout(() => setShowAchievement(null), 3000);
       }
     });
     
-    // Update achievements
-    setAchievements(prev => new Set([...prev, ...newAchievements]));
+    // Update achievements - simple array concatenation
+    if (newAchievements.length > 0) {
+      setAchievements(prev => [...prev, ...newAchievements]);
+    }
   };
 
   // Check achievements when recipe changes
@@ -203,24 +205,21 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
       const deltaY = touch.clientY - startY;
 
       // Detect horizontal swipe with better threshold
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
-        if (deltaX > 0) {
-          // Swipe right - show details
-          setSwipeDirection('right');
-          setShowDetails(true);
-        } else {
-          // Swipe left - hide details
-          setSwipeDirection('left');
-          setShowDetails(false);
-        }
-      }
+             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+         if (deltaX > 0) {
+           // Swipe right - show details
+           setShowDetails(true);
+         } else {
+           // Swipe left - hide details
+           setShowDetails(false);
+         }
+       }
     };
 
-    const handleTouchEnd = () => {
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-      setTimeout(() => setSwipeDirection(null), 300);
-    };
+         const handleTouchEnd = () => {
+       document.removeEventListener('touchmove', handleTouchMove);
+       document.removeEventListener('touchend', handleTouchEnd);
+     };
 
     document.addEventListener('touchmove', handleTouchMove);
     document.addEventListener('touchend', handleTouchEnd);
@@ -406,18 +405,10 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                       setSelectedDifficulty('Easy');
                     } else if (collection === 'Chef Specials') {
                       setSelectedDifficulty('Hard');
-                    } else if (collection === 'Healthy Options') {
-                      // Filter by healthy ingredients
-                      const healthyIngredients = ['vegetables', 'chicken', 'fish', 'olive oil', 'quinoa'];
-                      const healthyRecipes = simpleRecipes.filter(recipe =>
-                        recipe.ingredients.some(ing => 
-                          healthyIngredients.some(healthy => 
-                            ing.toLowerCase().includes(healthy)
-                          )
-                        )
-                      );
-                      // This would need more sophisticated filtering in a real app
-                    }
+                                         } else if (collection === 'Healthy Options') {
+                       // Filter by healthy ingredients - placeholder for future implementation
+                       // This would need more sophisticated filtering in a real app
+                     }
                   }}
                   className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
                   title={collection}
