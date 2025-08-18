@@ -19,23 +19,75 @@ const MVPApp: React.FC = () => {
       case 'profile':
         return (
           <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
-            <div className="max-w-md mx-auto text-center pt-20">
-              <div className="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl">👨‍🍳</span>
+            <div className="max-w-2xl mx-auto">
+              {/* Profile Header */}
+              <div className="text-center mb-8">
+                <div className="w-24 h-24 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-4xl">👨‍🍳</span>
+                </div>
+                <h1 className="text-3xl font-bold text-slate-800 mb-2">Home Chef</h1>
+                <p className="text-slate-600">Ready to cook amazing recipes!</p>
               </div>
-              <h1 className="text-2xl font-bold text-slate-800 mb-2">Your Profile</h1>
-              <p className="text-slate-600 mb-8">This is where your recipes will appear</p>
-              
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">Coming Soon!</h2>
-                <p className="text-slate-600 mb-4">
-                  Create some recipes first, then they'll show up here in your profile.
-                </p>
-                <button
-                  onClick={() => setCurrentTab('create')}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
-                >
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                  <div className="text-2xl font-bold text-orange-500">8</div>
+                  <div className="text-sm text-slate-600">Recipes</div>
+                </div>
+                <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                  <div className="text-2xl font-bold text-green-500">3</div>
+                  <div className="text-sm text-slate-600">Categories</div>
+                </div>
+                <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                  <div className="text-2xl font-bold text-blue-500">5</div>
+                  <div className="text-sm text-slate-600">Achievements</div>
+                </div>
+              </div>
+
+              {/* Achievements Section */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+                  <span className="text-2xl">🏆</span>
+                  <span>Achievements</span>
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { name: 'First Steps', icon: '👣', description: 'View your first recipe', unlocked: true },
+                    { name: 'World Explorer', icon: '🌍', description: 'Explore 3+ cuisines', unlocked: true },
+                    { name: 'Master Chef', icon: '👨‍🍳', description: 'Try a hard recipe', unlocked: false },
+                    { name: 'Recipe Hunter', icon: '🔍', description: 'View 5+ recipes', unlocked: false }
+                  ].map((achievement, index) => (
+                    <div key={index} className={`p-3 rounded-xl border-2 ${
+                      achievement.unlocked 
+                        ? 'border-orange-200 bg-orange-50' 
+                        : 'border-gray-200 bg-gray-50'
+                    }`}>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-lg">{achievement.icon}</span>
+                        <span className={`font-medium text-sm ${
+                          achievement.unlocked ? 'text-orange-700' : 'text-gray-500'
+                        }`}>
+                          {achievement.name}
+                        </span>
+                      </div>
+                      <p className={`text-xs ${
+                        achievement.unlocked ? 'text-orange-600' : 'text-gray-400'
+                      }`}>
+                        {achievement.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button onClick={() => setCurrentTab('create')} className="w-full px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors">
                   Create Your First Recipe
+                </button>
+                <button onClick={() => setCurrentTab('feed')} className="w-full px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors">
+                  Browse More Recipes
                 </button>
               </div>
             </div>

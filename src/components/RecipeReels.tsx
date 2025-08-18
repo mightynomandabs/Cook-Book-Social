@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Filter, Heart, Bookmark, Share2, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Filter, Heart, Bookmark, Share2, ShoppingCart, Timer, Volume2 } from 'lucide-react';
 import { simpleRecipes, SimpleRecipe } from '../data/simpleRecipes';
 
 interface RecipeReelsProps {
@@ -15,7 +15,14 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [likedRecipes, setLikedRecipes] = useState<Set<string>>(new Set());
   const [savedRecipes, setSavedRecipes] = useState<Set<string>>(new Set());
+  const [showTimer, setShowTimer] = useState(false);
+  const [timerMinutes, setTimerMinutes] = useState(15);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(15 * 60); // in seconds
+  const [achievements, setAchievements] = useState<Set<string>>(new Set());
+  const [showAchievement, setShowAchievement] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter recipes based on search and difficulty
   const filteredRecipes = simpleRecipes.filter(recipe => {
@@ -75,6 +82,102 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
       alert('Recipe link copied to clipboard! 📋');
     }
   };
+
+  // Timer functions
+  const startTimer = () => {
+    setIsTimerRunning(true);
+    setTimeLeft(timerMinutes * 60);
+    
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          // Timer finished
+          setIsTimerRunning(false);
+          if (timerRef.current) clearInterval(timerRef.current);
+          
+          // Play notification sound or show alert
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Timer Complete!', {
+              body: `Your ${timerMinutes} minute timer is done!`,
+              icon: '🍳'
+            });
+          } else {
+            alert(`⏰ Timer Complete! Your ${timerMinutes} minute timer is done!`);
+          }
+          
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    setIsTimerRunning(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const resetTimer = () => {
+    stopTimer();
+    setTimeLeft(timerMinutes * 60);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  // Achievement system
+  const checkAchievements = (recipe: SimpleRecipe) => {
+    const newAchievements = new Set<string>();
+    
+    // First recipe viewed
+    if (achievements.size === 0) {
+      newAchievements.add('First Steps');
+    }
+    
+    // Different cuisines explored
+    const cuisineCount = new Set(simpleRecipes.map(r => r.category)).size;
+    if (cuisineCount >= 3 && !achievements.has('World Explorer')) {
+      newAchievements.add('World Explorer');
+    }
+    
+    // Difficulty progression
+    if (recipe.difficulty === 'Hard' && !achievements.has('Master Chef')) {
+      newAchievements.add('Master Chef');
+    }
+    
+    // Recipe count milestones
+    const viewedCount = achievements.size + 1;
+    if (viewedCount >= 5 && !achievements.has('Recipe Hunter')) {
+      newAchievements.add('Recipe Hunter');
+    }
+    
+    // Check for new achievements
+    newAchievements.forEach(achievement => {
+      if (!achievements.has(achievement)) {
+        setShowAchievement(achievement);
+        setTimeout(() => setShowAchievement(null), 3000);
+      }
+    });
+    
+    // Update achievements
+    setAchievements(prev => new Set([...prev, ...newAchievements]));
+  };
+
+  // Check achievements when recipe changes
+  useEffect(() => {
+    if (currentRecipe) {
+      checkAchievements(currentRecipe);
+    }
+  }, [currentRecipe]);
 
   // Handle wheel scroll for recipe navigation
   const handleWheel = (e: React.WheelEvent) => {
@@ -164,6 +267,15 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
   return (
     <div className="h-screen bg-black overflow-hidden relative">
+      {/* Achievement Toast */}
+      {showAchievement && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg animate-bounce">
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl">🏆</span>
+            <span className="font-bold">Achievement Unlocked: {showAchievement}</span>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4">
         {/* Top Row */}
@@ -269,6 +381,54 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             >
               Clear Filters
             </button>
+          </div>
+        )}
+
+        {/* Trending & Collections */}
+        {filteredRecipes.length > 0 && !showDetails && (
+          <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white/80">
+            {/* Trending Badge */}
+            <div className="mb-4 text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mb-2 mx-auto">
+                <span className="text-white text-lg">🔥</span>
+              </div>
+              <span className="text-xs font-medium">Trending</span>
+            </div>
+            
+            {/* Quick Collections */}
+            <div className="space-y-3">
+              {['Quick & Easy', 'Chef Specials', 'Healthy Options'].map((collection, index) => (
+                <button
+                  key={collection}
+                  onClick={() => {
+                    // Filter by collection type
+                    if (collection === 'Quick & Easy') {
+                      setSelectedDifficulty('Easy');
+                    } else if (collection === 'Chef Specials') {
+                      setSelectedDifficulty('Hard');
+                    } else if (collection === 'Healthy Options') {
+                      // Filter by healthy ingredients
+                      const healthyIngredients = ['vegetables', 'chicken', 'fish', 'olive oil', 'quinoa'];
+                      const healthyRecipes = simpleRecipes.filter(recipe =>
+                        recipe.ingredients.some(ing => 
+                          healthyIngredients.some(healthy => 
+                            ing.toLowerCase().includes(healthy)
+                          )
+                        )
+                      );
+                      // This would need more sophisticated filtering in a real app
+                    }
+                  }}
+                  className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
+                  title={collection}
+                >
+                  <span className="text-white text-lg">
+                    {collection === 'Quick & Easy' ? '⚡' : 
+                     collection === 'Chef Specials' ? '👨‍🍳' : '🥗'}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -397,16 +557,85 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                 <h1 className="text-2xl font-bold mb-2">{currentRecipe.title}</h1>
                 <p className="text-gray-600 mb-4">by {currentRecipe.creator}</p>
                 
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-5 h-5" />
-                    <span>{currentRecipe.time}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <ChefHat className="w-5 h-5" />
-                    <span>{currentRecipe.difficulty}</span>
-                  </div>
-                </div>
+                                 <div className="flex items-center space-x-4 text-sm text-gray-500">
+                   <div className="flex items-center space-x-1">
+                     <Clock className="w-5 h-5" />
+                     <span>{currentRecipe.time}</span>
+                   </div>
+                   <div className="flex items-center space-x-1">
+                     <ChefHat className="w-5 h-5" />
+                     <span>{currentRecipe.difficulty}</span>
+                   </div>
+                 </div>
+
+                 {/* Cooking Timer */}
+                 <div className="mt-4 p-4 bg-orange-50 rounded-xl">
+                   <div className="flex items-center justify-between mb-3">
+                     <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
+                       <Timer className="w-5 h-5 text-orange-500" />
+                       <span>Cooking Timer</span>
+                     </h4>
+                     <button
+                       onClick={() => setShowTimer(!showTimer)}
+                       className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                     >
+                       {showTimer ? 'Hide' : 'Show'}
+                     </button>
+                   </div>
+                   
+                   {showTimer && (
+                     <div className="space-y-3">
+                       <div className="flex items-center space-x-3">
+                         <input
+                           type="range"
+                           min="1"
+                           max="60"
+                           value={timerMinutes}
+                           onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                           className="flex-1"
+                           disabled={isTimerRunning}
+                         />
+                         <span className="text-lg font-bold text-gray-800 min-w-[3rem]">
+                           {timerMinutes}m
+                         </span>
+                       </div>
+                       
+                       {isTimerRunning && (
+                         <div className="text-center">
+                           <div className="text-2xl font-bold text-orange-500">
+                             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                           </div>
+                         </div>
+                       )}
+                       
+                       <div className="flex space-x-2">
+                         {!isTimerRunning ? (
+                           <button
+                             onClick={startTimer}
+                             className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                           >
+                             Start Timer
+                           </button>
+                         ) : (
+                           <>
+                             <button
+                               onClick={stopTimer}
+                               className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors"
+                             >
+                               Pause
+                             </button>
+                             <button
+                               onClick={resetTimer}
+                               className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors"
+                             >
+                               Reset
+                             </button>
+                           </>
+                         )}
+                       </div>
+                     </div>
+                   )}
+                 </div>
               </div>
 
               {/* Ingredients */}
@@ -503,6 +732,53 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                     </li>
                   ))}
                 </ol>
+              </div>
+
+              {/* Recipe Recommendations */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3">You Might Also Like</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {simpleRecipes
+                    .filter(recipe => 
+                      recipe.id !== currentRecipe.id && 
+                      (recipe.category === currentRecipe.category || 
+                       recipe.difficulty === currentRecipe.difficulty ||
+                       recipe.ingredients.some(ing => 
+                         currentRecipe.ingredients.some(currIng => 
+                           currIng.toLowerCase().includes(ing.toLowerCase().split(' ')[0]) ||
+                           ing.toLowerCase().includes(currIng.toLowerCase().split(' ')[0])
+                         )
+                       ))
+                    )
+                    .slice(0, 4)
+                    .map((recipe) => (
+                      <button
+                        key={recipe.id}
+                        onClick={() => {
+                          const recipeIndex = simpleRecipes.findIndex(r => r.id === recipe.id);
+                          if (recipeIndex !== -1) {
+                            setCurrentIndex(recipeIndex);
+                            setShowDetails(false);
+                          }
+                        }}
+                        className="text-left bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors group"
+                      >
+                        <div className="w-full h-20 rounded-lg overflow-hidden mb-2">
+                          <img 
+                            src={recipe.image} 
+                            alt={recipe.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                        <h4 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-1">{recipe.title}</h4>
+                        <p className="text-xs text-gray-500">{recipe.creator}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-xs text-gray-500">{recipe.time}</span>
+                          <span className="text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full">{recipe.difficulty}</span>
+                        </div>
+                      </button>
+                    ))}
+                </div>
               </div>
             </div>
           </div>
