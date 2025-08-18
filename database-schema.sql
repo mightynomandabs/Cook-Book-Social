@@ -1,11 +1,8 @@
--- CookBook App Database Schema
+-- CookBook App Database Schema - MVP Version
 -- Run this in your Supabase SQL Editor
 
--- Note: This schema creates all tables and relationships for the CookBook app
+-- Note: This schema creates all tables and relationships for the CookBook MVP
 -- RLS policies are set up to allow public read access and user-specific modifications
--- 
--- ⚠️  DEVELOPMENT MODE: All operations are currently allowed for development purposes
---     Once authentication is implemented, these policies should be updated for production
 
 -- Users table
 CREATE TABLE users (
@@ -100,9 +97,8 @@ CREATE TABLE stories (
   image_url TEXT,
   video_url TEXT,
   caption TEXT,
-  views_count INTEGER DEFAULT 0,
-  is_viewed BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  views_count INTEGER DEFAULT 0
 );
 
 -- Comments table
@@ -110,275 +106,227 @@ CREATE TABLE comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
+  text TEXT NOT NULL,
+  parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,
+  likes_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Likes table
 CREATE TABLE likes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(recipe_id, user_id)
+  UNIQUE(user_id, recipe_id)
 );
 
 -- Saves table
 CREATE TABLE saves (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(recipe_id, user_id)
+  UNIQUE(user_id, recipe_id)
 );
 
--- Groups table
-CREATE TABLE groups (
+-- Follows table
+CREATE TABLE follows (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
+  follower_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(follower_id, following_id)
+);
+
+-- MVP: Analytics Events table
+CREATE TABLE analytics_events (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_type VARCHAR(100) NOT NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  recipe_id UUID REFERENCES recipes(id) ON DELETE SET NULL,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- MVP: Reports table for moderation
+CREATE TABLE reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  reporter_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  reported_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  recipe_id UUID REFERENCES recipes(id) ON DELETE SET NULL,
+  reason VARCHAR(100) NOT NULL,
   description TEXT,
-  avatar TEXT,
-  cover_image TEXT,
-  creator_id UUID REFERENCES users(id),
-  members_count INTEGER DEFAULT 0,
-  posts_count INTEGER DEFAULT 0,
-  tags TEXT[],
-  location VARCHAR(255),
-  is_public BOOLEAN DEFAULT TRUE,
+  status VARCHAR(50) DEFAULT 'pending',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Group members table
-CREATE TABLE group_members (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  role VARCHAR(50) DEFAULT 'member',
-  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(group_id, user_id)
-);
-
--- Contests table
-CREATE TABLE contests (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  image_url TEXT,
-  prize TEXT,
-  deadline TIMESTAMP WITH TIME ZONE,
-  participants_count INTEGER DEFAULT 0,
-  rules TEXT[],
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Contest submissions table
-CREATE TABLE contest_submissions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  contest_id UUID REFERENCES contests(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
-  video_url TEXT,
-  description TEXT,
-  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Restaurants table
-CREATE TABLE restaurants (
+-- MVP: Blocked Users table
+CREATE TABLE blocked_users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  logo TEXT,
-  cover_image TEXT,
-  address TEXT,
-  coordinates JSONB,
-  phone VARCHAR(50),
-  website TEXT,
-  cuisine TEXT[],
-  price_range VARCHAR(50),
-  rating DECIMAL(3,2),
-  reviews_count INTEGER DEFAULT 0,
-  delivery_available BOOLEAN DEFAULT TRUE,
-  delivery_partners TEXT[],
-  opening_hours JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  blocked_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  reason TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, blocked_user_id)
 );
 
--- Featured dishes table
-CREATE TABLE featured_dishes (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  image_url TEXT,
-  price DECIMAL(10,2),
-  is_vegetarian BOOLEAN DEFAULT FALSE,
-  spice_level INTEGER,
-  allergens TEXT[],
-  order_link TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Pantry items table
-CREATE TABLE pantry_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  category VARCHAR(100),
-  quantity DECIMAL(10,2),
-  unit VARCHAR(50),
-  expiry_date DATE,
-  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  is_low_stock BOOLEAN DEFAULT FALSE
-);
-
--- Meal plans table
-CREATE TABLE meal_plans (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  date DATE NOT NULL,
-  meal_type VARCHAR(50) NOT NULL,
-  recipe_id UUID REFERENCES recipes(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Notifications table
+-- MVP: Notifications table
 CREATE TABLE notifications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   type VARCHAR(50) NOT NULL,
   title VARCHAR(255) NOT NULL,
   message TEXT,
-  related_user_id UUID REFERENCES users(id),
-  related_recipe_id UUID REFERENCES recipes(id),
-  action_url TEXT,
+  data JSONB,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Suppliers table
-CREATE TABLE suppliers (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  logo TEXT,
-  delivery_time VARCHAR(100),
-  min_order_amount DECIMAL(10,2),
-  delivery_fee DECIMAL(10,2),
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Shopping cart table
-CREATE TABLE shopping_cart (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  supplier_id UUID REFERENCES suppliers(id),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Cart items table
-CREATE TABLE cart_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  cart_id UUID REFERENCES shopping_cart(id) ON DELETE CASCADE,
-  ingredient_name VARCHAR(255) NOT NULL,
-  quantity DECIMAL(10,2),
-  unit VARCHAR(50),
-  price DECIMAL(10,2),
-  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Create indexes for better performance
+-- Indexes for performance
 CREATE INDEX idx_recipes_creator_id ON recipes(creator_id);
-CREATE INDEX idx_recipes_created_at ON recipes(created_at);
+CREATE INDEX idx_recipes_created_at ON recipes(created_at DESC);
 CREATE INDEX idx_recipes_cuisine ON recipes(cuisine);
-CREATE INDEX idx_ingredients_recipe_id ON ingredients(recipe_id);
-CREATE INDEX idx_likes_recipe_id ON likes(recipe_id);
-CREATE INDEX idx_likes_user_id ON likes(user_id);
-CREATE INDEX idx_saves_recipe_id ON saves(recipe_id);
-CREATE INDEX idx_saves_user_id ON saves(user_id);
-CREATE INDEX idx_stories_user_id ON stories(user_id);
-CREATE INDEX idx_stories_created_at ON stories(created_at);
+CREATE INDEX idx_recipes_tags ON recipes USING GIN(tags);
 CREATE INDEX idx_comments_recipe_id ON comments(recipe_id);
-CREATE INDEX idx_group_members_group_id ON group_members(group_id);
-CREATE INDEX idx_pantry_items_user_id ON pantry_items(user_id);
-CREATE INDEX idx_meal_plans_user_id ON meal_plans(user_id);
+CREATE INDEX idx_likes_recipe_id ON likes(recipe_id);
+CREATE INDEX idx_saves_user_id ON saves(user_id);
+CREATE INDEX idx_follows_follower_id ON follows(follower_id);
+CREATE INDEX idx_follows_following_id ON follows(following_id);
+CREATE INDEX idx_analytics_events_user_id ON analytics_events(user_id);
+CREATE INDEX idx_analytics_events_created_at ON analytics_events(created_at DESC);
+CREATE INDEX idx_reports_reporter_id ON reports(reporter_id);
+CREATE INDEX idx_reports_status ON reports(status);
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 
--- Enable Row Level Security
+-- RLS Policies (Development Mode - Allow All)
+-- TODO: Update these policies for production
+
+-- Users table policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users are viewable by everyone" ON users FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own data" ON users FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own data" ON users FOR UPDATE USING (true);
+CREATE POLICY "Users can delete own data" ON users FOR DELETE USING (true);
+
+-- Recipes table policies
 ALTER TABLE recipes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ingredients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE method_steps ENABLE ROW LEVEL SECURITY;
-ALTER TABLE nutrition_info ENABLE ROW LEVEL SECURITY;
-ALTER TABLE stories ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Recipes are viewable by everyone" ON recipes FOR SELECT USING (true);
+CREATE POLICY "Users can insert recipes" ON recipes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own recipes" ON recipes FOR UPDATE USING (true);
+CREATE POLICY "Users can delete own recipes" ON recipes FOR DELETE USING (true);
+
+-- Comments table policies
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Comments are viewable by everyone" ON comments FOR SELECT USING (true);
+CREATE POLICY "Users can insert comments" ON comments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own comments" ON comments FOR UPDATE USING (true);
+CREATE POLICY "Users can delete own comments" ON comments FOR DELETE USING (true);
+
+-- Likes table policies
 ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Likes are viewable by everyone" ON likes FOR SELECT USING (true);
+CREATE POLICY "Users can insert likes" ON likes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can delete own likes" ON likes FOR DELETE USING (true);
+
+-- Saves table policies
 ALTER TABLE saves ENABLE ROW LEVEL SECURITY;
-ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
-ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contest_submissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE featured_dishes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE pantry_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE meal_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Saves are viewable by owner" ON saves FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert saves" ON saves FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can delete own saves" ON saves FOR DELETE USING (true);
+
+-- Follows table policies
+ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Follows are viewable by everyone" ON follows FOR SELECT USING (true);
+CREATE POLICY "Users can insert follows" ON follows FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can delete own follows" ON follows FOR DELETE USING (true);
+
+-- Analytics events policies
+ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Analytics events are insertable by everyone" ON analytics_events FOR INSERT WITH CHECK (true);
+CREATE POLICY "Analytics events are viewable by admins only" ON analytics_events FOR SELECT USING (false);
+
+-- Reports policies
+ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert reports" ON reports FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can view own reports" ON reports FOR SELECT USING (auth.uid() = reporter_id);
+
+-- Blocked users policies
+ALTER TABLE blocked_users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own blocks" ON blocked_users FOR ALL USING (auth.uid() = user_id);
+
+-- Notifications policies
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE shopping_cart ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own notifications" ON notifications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own notifications" ON notifications FOR UPDATE USING (auth.uid() = user_id);
 
--- Basic RLS policies (you can customize these based on your needs)
--- Users can read all public data
-CREATE POLICY "Allow public read access" ON recipes FOR SELECT USING (is_published = true);
-CREATE POLICY "Allow public read access" ON users FOR SELECT USING (true);
-CREATE POLICY "Allow public read access" ON stories FOR SELECT USING (true);
-CREATE POLICY "Allow public read access" ON groups FOR SELECT USING (is_public = true);
-CREATE POLICY "Allow public read access" ON contests FOR SELECT USING (is_active = true);
-CREATE POLICY "Allow public read access" ON restaurants FOR SELECT USING (true);
+-- Sample data for testing
+INSERT INTO users (id, email, name, avatar_url, bio, interests, dietary_preferences) VALUES
+('550e8400-e29b-41d4-a716-446655440001', 'chef.priya@example.com', 'Chef Priya', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'Passionate home chef sharing authentic Indian recipes', ARRAY['Indian', 'Vegetarian', 'Spicy'], ARRAY['Vegetarian']),
+('550e8400-e29b-41d4-a716-446655440002', 'marco.pizza@example.com', 'Pizza Master Marco', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', 'Italian pizza enthusiast and dough master', ARRAY['Italian', 'Pizza', 'Dough'], ARRAY['Non-Vegetarian']),
+('550e8400-e29b-41d4-a716-446655440003', 'sarah.health@example.com', 'Health Coach Sarah', 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', 'Creating healthy, delicious meals for busy lifestyles', ARRAY['Healthy', 'Meal Prep', 'Quick'], ARRAY['Vegetarian', 'Gluten-Free']);
 
--- Users can only modify their own data (temporarily disabled for development)
--- These policies will be enabled once authentication is set up
--- CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
--- CREATE POLICY "Users can insert own recipes" ON recipes FOR INSERT WITH CHECK (auth.uid() = creator_id);
--- CREATE POLICY "Users can update own recipes" ON recipes FOR UPDATE USING (auth.uid() = creator_id);
--- CREATE POLICY "Users can delete own recipes" ON recipes FOR DELETE USING (auth.uid() = creator_id);
+INSERT INTO recipes (id, title, description, creator_id, image_url, teaser, cuisine, difficulty, prep_time, cook_time, servings, tags) VALUES
+('660e8400-e29b-41d4-a716-446655440001', 'Spicy Paneer Tikka', 'A delicious vegetarian appetizer with marinated paneer cubes grilled to perfection', '550e8400-e29b-41d4-a716-446655440001', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'Crispy, spicy paneer tikka that will make you forget meat!', 'Indian', 'Medium', 30, 20, 4, ARRAY['Vegetarian', 'Appetizer', 'Spicy', 'Paneer']),
+('660e8400-e29b-41d4-a716-446655440002', 'Classic Margherita Pizza', 'Authentic Neapolitan-style pizza with fresh mozzarella and basil', '550e8400-e29b-41d4-a716-446655440002', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'The perfect pizza - simple, classic, and absolutely delicious', 'Italian', 'Hard', 45, 15, 2, ARRAY['Pizza', 'Italian', 'Cheese', 'Basil']),
+('660e8400-e29b-41d4-a716-446655440003', 'Quinoa Buddha Bowl', 'Nutritious and colorful bowl packed with protein and vegetables', '550e8400-e29b-41d4-a716-446655440003', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop', 'A healthy, protein-rich meal that looks as good as it tastes', 'International', 'Easy', 20, 25, 1, ARRAY['Healthy', 'Quinoa', 'Vegetarian', 'Protein']);
 
--- For now, allow all operations (development mode)
-CREATE POLICY "Allow all operations" ON users FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON recipes FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON ingredients FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON method_steps FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON nutrition_info FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON stories FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON comments FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON likes FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON saves FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON groups FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON group_members FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON contests FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON contest_submissions FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON restaurants FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON featured_dishes FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON pantry_items FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON meal_plans FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON notifications FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON shopping_cart FOR ALL USING (true);
-CREATE POLICY "Allow all operations" ON cart_items FOR ALL USING (true);
+-- Sample ingredients
+INSERT INTO ingredients (recipe_id, name, amount, unit) VALUES
+('660e8400-e29b-41d4-a716-446655440001', 'Paneer', 200, 'g'),
+('660e8400-e29b-41d4-a716-446655440001', 'Yogurt', 100, 'ml'),
+('660e8400-e29b-41d4-a716-446655440001', 'Garam Masala', 1, 'tsp'),
+('660e8400-e29b-41d4-a716-446655440002', 'Pizza Dough', 250, 'g'),
+('660e8400-e29b-41d4-a716-446655440002', 'Fresh Mozzarella', 150, 'g'),
+('660e8400-e29b-41d4-a716-446655440002', 'Fresh Basil', 10, 'leaves'),
+('660e8400-e29b-41d4-a716-446655440003', 'Quinoa', 100, 'g'),
+('660e8400-e29b-41d4-a716-446655440003', 'Chickpeas', 100, 'g'),
+('660e8400-e29b-41d4-a716-446655440003', 'Cherry Tomatoes', 150, 'g');
 
--- Insert sample data
-INSERT INTO suppliers (name, logo, delivery_time, min_order_amount, delivery_fee) VALUES
-('Blinkit', '🛒', '10 minutes', 0, 0),
-('Swiggy Instamart', '🛒', '15 minutes', 0, 0),
-('Zepto', '🛒', '10 minutes', 0, 0);
+-- Sample method steps
+INSERT INTO method_steps (recipe_id, step_number, description, time) VALUES
+('660e8400-e29b-41d4-a716-446655440001', 1, 'Cut paneer into 1-inch cubes', 5),
+('660e8400-e29b-41d4-a716-446655440001', 2, 'Mix yogurt with spices to make marinade', 10),
+('660e8400-e29b-41d4-a716-446655440001', 3, 'Marinate paneer for 30 minutes', 30),
+('660e8400-e29b-41d4-a716-446655440001', 4, 'Grill until golden brown', 20),
+('660e8400-e29b-41d4-a716-446655440002', 1, 'Preheat oven to 500°F (260°C)', 15),
+('660e8400-e29b-41d4-a716-446655440002', 2, 'Stretch dough into 12-inch circle', 10),
+('660e8400-e29b-41d4-a716-446655440002', 3, 'Add toppings and bake for 12-15 minutes', 15),
+('660e8400-e29b-41d4-a716-446655440003', 1, 'Cook quinoa according to package instructions', 20),
+('660e8400-e29b-41d4-a716-446655440003', 2, 'Assemble bowl with quinoa, vegetables, and protein', 5);
 
--- Create updated_at trigger function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
+-- Sample comments
+INSERT INTO comments (recipe_id, user_id, text) VALUES
+('660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002', 'This looks amazing! I love paneer tikka.'),
+('660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003', 'Great recipe! I added some extra chili powder.'),
+('660e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001', 'Perfect pizza! The crust looks so crispy.'),
+('660e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440001', 'Healthy and delicious! Perfect for meal prep.');
 
--- Apply trigger to tables with updated_at
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_recipes_updated_at BEFORE UPDATE ON recipes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Sample likes
+INSERT INTO likes (user_id, recipe_id) VALUES
+('550e8400-e29b-41d4-a716-446655440002', '660e8400-e29b-41d4-a716-446655440001'),
+('550e8400-e29b-41d4-a716-446655440003', '660e8400-e29b-41d4-a716-446655440001'),
+('550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440002'),
+('550e8400-e29b-41d4-a716-446655440003', '660e8400-e29b-41d4-a716-446655440002'),
+('550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440003'),
+('550e8400-e29b-41d4-a716-446655440002', '660e8400-e29b-41d4-a716-446655440003');
+
+-- Sample follows
+INSERT INTO follows (follower_id, following_id) VALUES
+('550e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001'),
+('550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440001'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002'),
+('550e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440002'),
+('550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003'),
+('550e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440003');
+
+-- Update counts
+UPDATE recipes SET 
+  likes_count = (SELECT COUNT(*) FROM likes WHERE recipe_id = recipes.id),
+  comments_count = (SELECT COUNT(*) FROM comments WHERE recipe_id = recipes.id);
+
+UPDATE users SET 
+  followers_count = (SELECT COUNT(*) FROM follows WHERE following_id = users.id),
+  following_count = (SELECT COUNT(*) FROM follows WHERE follower_id = users.id),
+  posts_count = (SELECT COUNT(*) FROM recipes WHERE creator_id = users.id);
