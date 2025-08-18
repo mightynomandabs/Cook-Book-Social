@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Filter, Heart, Bookmark, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Filter, Heart, Bookmark, Share2, ShoppingCart } from 'lucide-react';
 import { simpleRecipes, SimpleRecipe } from '../data/simpleRecipes';
 
 interface RecipeReelsProps {
@@ -411,12 +411,80 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
               {/* Ingredients */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
-                <ul className="space-y-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold">Ingredients</h3>
+                  
+                  {/* Quick Order All Button */}
+                  <button
+                    onClick={() => {
+                      const allIngredients = currentRecipe.ingredients.join(', ');
+                      const searchQuery = encodeURIComponent(allIngredients);
+                      // Open Blinkit by default for bulk order
+                      window.open(`https://blinkit.com/search?q=${searchQuery}`, '_blank');
+                    }}
+                    className="px-3 py-1 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-1"
+                  >
+                    <ShoppingCart className="w-3 h-3" />
+                    <span>Quick Order All</span>
+                  </button>
+                </div>
+                
+                {/* Info Text */}
+                <p className="text-sm text-gray-500 mb-3">
+                  Click on any delivery service below to order ingredients directly
+                </p>
+                
+                <ul className="space-y-4">
                   {currentRecipe.ingredients.map((ingredient, index) => (
-                    <li key={index} className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-gray-700">{ingredient}</span>
+                    <li key={index} className="space-y-2">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span className="text-gray-700 font-medium">{ingredient}</span>
+                      </div>
+                      
+                      {/* Delivery Service Options */}
+                      <div className="ml-5 flex items-center space-x-2">
+                        <span className="text-xs text-gray-500">Get on:</span>
+                        
+                        {/* Blinkit */}
+                        <button
+                          onClick={() => {
+                            const searchQuery = encodeURIComponent(ingredient);
+                            window.open(`https://blinkit.com/search?q=${searchQuery}`, '_blank');
+                          }}
+                          className="px-2 py-1 bg-green-500 text-white text-xs rounded-md hover:bg-green-600 transition-colors flex items-center space-x-1"
+                          title="Order from Blinkit (10 min delivery)"
+                        >
+                          <span className="w-2 h-2 bg-white rounded-full"></span>
+                          <span>Blinkit</span>
+                        </button>
+                        
+                        {/* Instamart */}
+                        <button
+                          onClick={() => {
+                            const searchQuery = encodeURIComponent(ingredient);
+                            window.open(`https://www.zepto.in/search?q=${searchQuery}`, '_blank');
+                          }}
+                          className="px-2 py-1 bg-blue-500 text-white text-xs rounded-md hover:bg-blue-600 transition-colors flex items-center space-x-1"
+                          title="Order from Instamart (15 min delivery)"
+                        >
+                          <span className="w-2 h-2 bg-white rounded-full"></span>
+                          <span>Instamart</span>
+                        </button>
+                        
+                        {/* Zepto */}
+                        <button
+                          onClick={() => {
+                            const searchQuery = encodeURIComponent(ingredient);
+                            window.open(`https://www.zepto.in/search?q=${searchQuery}`, '_blank');
+                          }}
+                          className="px-2 py-1 bg-purple-500 text-white text-xs rounded-md hover:bg-purple-600 transition-colors flex items-center space-x-1"
+                          title="Order from Zepto (10 min delivery)"
+                        >
+                          <span className="w-2 h-2 bg-white rounded-full"></span>
+                          <span>Zepto</span>
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
