@@ -169,6 +169,10 @@ export const sampleRecipe: Recipe = {
   image: 'https://images.unsplash.com/photo-1563379091339-3b21d0c1d146?w=600&h=400&fit=crop',
   video: 'https://sample-video-url.mp4',
   teaser: 'Learn the secret to making restaurant-style fluffy basmati rice at home!',
+  likes_count: 1247,
+  comments_count: 89,
+  saves_count: 456,
+  // legacy fields maintained for any old code paths
   likes: 1247,
   comments: 89,
   saves: 456,
@@ -250,6 +254,9 @@ export const sampleRecipes: Recipe[] = [
     image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop',
     tags: ['Street Food', 'Mumbai', 'Vegetarian', 'Snack'],
     cuisine: 'Indian',
+    likes_count: 2156,
+    comments_count: 156,
+    saves_count: 789,
     likes: 2156,
     comments: 156,
     saves: 789
@@ -267,6 +274,9 @@ export const sampleRecipes: Recipe[] = [
     image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop',
     tags: ['Pizza', 'Italian', 'Vegetarian', 'Baking'],
     cuisine: 'Italian',
+    likes_count: 1890,
+    comments_count: 134,
+    saves_count: 567,
     likes: 1890,
     comments: 134,
     saves: 567

@@ -34,9 +34,9 @@ export interface Recipe {
   image: string;
   video?: string;
   teaser: string;
-  likes: number;
-  comments: number;
-  saves: number;
+  likes_count: number;
+  comments_count: number;
+  saves_count: number;
   isSaved: boolean;
   isLiked: boolean;
   tags: string[];
@@ -56,6 +56,10 @@ export interface Recipe {
   views: number;
   // New properties for optimized components
   cookingTime: number;
+  // Legacy properties for backward compatibility
+  likes?: number;
+  comments?: number;
+  saves?: number;
 }
 
 export interface Ingredient {

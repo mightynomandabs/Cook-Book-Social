@@ -9,6 +9,79 @@ export const useSupabaseData = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const transformRecipeFromDb = (recipe: any): Recipe => ({
+    id: recipe.id,
+    title: recipe.title,
+    description: recipe.description,
+    creator: {
+      id: recipe.creator?.id || 'unknown',
+      name: recipe.creator?.name || 'Unknown Chef',
+      email:
+        `${recipe.creator?.name?.toLowerCase().replace(/\s+/g, '.') || 'unknown' }@example.com`,
+      avatar: recipe.creator?.avatar_url || '',
+      bio: `Professional chef specializing in ${recipe.cuisine || 'international'} cuisine`,
+      cookingLevel: 5,
+      cookingLevelTitle: recipe.creator?.cooking_level_title || 'Expert',
+      badges: [],
+      followers: Math.floor(Math.random() * 1000) + 100,
+      following: Math.floor(Math.random() * 500) + 50,
+      posts: Math.floor(Math.random() * 100) + 10,
+      savedRecipes: [],
+      interests: recipe.tags || [],
+      dietaryPreferences: ['Vegetarian', 'Non-Vegetarian'],
+      preferredLanguages: ['English'],
+      location: 'India',
+      isRestaurant: false
+    },
+    image: recipe.image_url || '',
+    video: recipe.video_url,
+    teaser: recipe.description?.substring(0, 100) || '',
+    likes_count: recipe.likes_count || 0,
+    comments_count: recipe.comments_count || 0,
+    saves_count: recipe.saves_count || 0,
+    isSaved: false,
+    isLiked: false,
+    tags: recipe.tags || [],
+    cuisine: recipe.cuisine || 'International',
+    dietaryTags: (recipe.tags || []).filter((tag: string) => ['Vegetarian', 'Vegan', 'Gluten-Free'].includes(tag)),
+    prepTime: recipe.prep_time || 0,
+    cookTime: recipe.cook_time || 0,
+    totalTime: (recipe.prep_time || 0) + (recipe.cook_time || 0),
+    servings: recipe.servings || 1,
+    difficulty: recipe.difficulty || 'Easy',
+    ingredients: recipe.ingredients?.map((ing: any) => ({
+      id: ing.id,
+      name: ing.name,
+      amount: 1,
+      unit: 'piece',
+      price: 0,
+      suppliers: [],
+      isAvailable: true,
+      userHas: false
+    })) || [],
+    method: recipe.method_steps?.map((step: any) => ({
+      id: step.id,
+      stepNumber: step.step_number,
+      description: step.description,
+      image: undefined,
+      time: 0,
+      tips: undefined
+    })) || [],
+    nutrition: {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      fiber: 0,
+      sugar: 0
+    },
+    language: recipe.language || 'English',
+    translations: {},
+    createdAt: new Date(recipe.created_at),
+    views: recipe.views_count || 0,
+    cookingTime: (recipe.prep_time || 0) + (recipe.cook_time || 0)
+  })
+
   // Fetch recipes from Supabase
   const fetchRecipes = async (limit = 20, offset = 0) => {
     try {
@@ -28,77 +101,7 @@ export const useSupabaseData = () => {
       if (error) throw error
       
       // Transform data to match Recipe interface
-      const transformedRecipes = data?.map(recipe => ({
-        id: recipe.id,
-        title: recipe.title,
-        description: recipe.description,
-        creator: {
-          id: recipe.creator?.id || 'unknown',
-          name: recipe.creator?.name || 'Unknown Chef',
-          email: `${recipe.creator?.name?.toLowerCase().replace(/\s+/g, '.')}@example.com` || 'unknown@example.com',
-          avatar: recipe.creator?.avatar_url || '',
-          bio: `Professional chef specializing in ${recipe.cuisine || 'international'} cuisine`,
-          cookingLevel: 5,
-          cookingLevelTitle: recipe.creator?.cooking_level_title || 'Expert',
-          badges: [],
-          followers: Math.floor(Math.random() * 1000) + 100,
-          following: Math.floor(Math.random() * 500) + 50,
-          posts: Math.floor(Math.random() * 100) + 10,
-          savedRecipes: [],
-          interests: recipe.tags || [],
-          dietaryPreferences: ['Vegetarian', 'Non-Vegetarian'],
-          preferredLanguages: ['English'],
-          location: 'India',
-          isRestaurant: false
-        },
-        image: recipe.image_url || '',
-        video: recipe.video_url,
-        teaser: recipe.description?.substring(0, 100) || '',
-        likes: recipe.likes_count || 0,
-        comments: recipe.comments_count || 0,
-        saves: recipe.saves_count || 0,
-        isSaved: false,
-        isLiked: false,
-        tags: recipe.tags || [],
-        cuisine: recipe.cuisine || 'International',
-        dietaryTags: (recipe.tags || []).filter((tag: string) => ['Vegetarian', 'Vegan', 'Gluten-Free'].includes(tag)),
-        prepTime: recipe.prep_time || 0,
-        cookTime: recipe.cook_time || 0,
-        totalTime: (recipe.prep_time || 0) + (recipe.cook_time || 0),
-        servings: recipe.servings || 1,
-        difficulty: recipe.difficulty || 'Easy',
-        ingredients: recipe.ingredients?.map((ing: any) => ({
-          id: ing.id,
-          name: ing.name,
-          amount: 1,
-          unit: 'piece',
-          price: 0,
-          suppliers: [],
-          isAvailable: true,
-          userHas: false
-        })) || [],
-        method: recipe.method_steps?.map((step: any) => ({
-          id: step.id,
-          stepNumber: step.step_number,
-          description: step.description,
-          image: undefined,
-          time: 0,
-          tips: undefined
-        })) || [],
-        nutrition: {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          fiber: 0,
-          sugar: 0
-        },
-        language: recipe.language || 'English',
-        translations: {},
-        createdAt: new Date(recipe.created_at),
-        views: recipe.views_count || 0,
-        cookingTime: (recipe.prep_time || 0) + (recipe.cook_time || 0)
-      })) || []
+      const transformedRecipes = data?.map(transformRecipeFromDb) || []
       
       setRecipes(transformedRecipes)
     } catch (err) {
@@ -113,9 +116,9 @@ export const useSupabaseData = () => {
         image: recipe.image,
         video: recipe.video,
         teaser: recipe.description.substring(0, 100),
-        likes: recipe.likes,
-        comments: recipe.comments,
-        saves: recipe.saves,
+        likes_count: recipe.likes_count ?? recipe.likes ?? 0,
+        comments_count: recipe.comments_count ?? recipe.comments ?? 0,
+        saves_count: recipe.saves_count ?? recipe.saves ?? 0,
         isSaved: false,
         isLiked: false,
         tags: recipe.tags,
@@ -206,16 +209,19 @@ export const useSupabaseData = () => {
       const result = await supabaseHelpers.toggleLike(recipeId, userId)
       
       // Update local state
-      setRecipes(prevRecipes => 
-        prevRecipes.map(recipe => 
-          recipe.id === recipeId 
-            ? { 
-                ...recipe, 
-                likes: result.liked ? recipe.likes + 1 : recipe.likes - 1,
-                isLiked: result.liked
-              }
-            : recipe
-        )
+      setRecipes(prevRecipes =>
+        prevRecipes.map(recipe => {
+          if (recipe.id !== recipeId) return recipe
+          const currentLikes = recipe.likes_count ?? recipe.likes ?? 0
+          const updatedLikes = result.liked ? currentLikes + 1 : Math.max(0, currentLikes - 1)
+          return {
+            ...recipe,
+            likes_count: updatedLikes,
+            // keep legacy field in sync for any old UI that might read it
+            likes: updatedLikes,
+            isLiked: result.liked
+          }
+        })
       )
       
       return result
@@ -232,16 +238,19 @@ export const useSupabaseData = () => {
       const result = await supabaseHelpers.toggleSave(recipeId, userId)
       
       // Update local state
-      setRecipes(prevRecipes => 
-        prevRecipes.map(recipe => 
-          recipe.id === recipeId 
-            ? { 
-                ...recipe, 
-                saves: result.saved ? recipe.saves + 1 : recipe.saves - 1,
-                isSaved: result.saved
-              }
-            : recipe
-        )
+      setRecipes(prevRecipes =>
+        prevRecipes.map(recipe => {
+          if (recipe.id !== recipeId) return recipe
+          const currentSaves = recipe.saves_count ?? recipe.saves ?? 0
+          const updatedSaves = result.saved ? currentSaves + 1 : Math.max(0, currentSaves - 1)
+          return {
+            ...recipe,
+            saves_count: updatedSaves,
+            // keep legacy field in sync
+            saves: updatedSaves,
+            isSaved: result.saved
+          }
+        })
       )
       
       return result
@@ -268,7 +277,8 @@ export const useSupabaseData = () => {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setRecipes(data)
+      const transformed = (data || []).map(transformRecipeFromDb)
+      setRecipes(transformed)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search recipes')
@@ -294,7 +304,8 @@ export const useSupabaseData = () => {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setRecipes(data)
+      const transformed = (data || []).map(transformRecipeFromDb)
+      setRecipes(transformed)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to filter recipes')

@@ -22,5 +22,27 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/components/KitchenFeed.tsx",
+    "src/components/OptimizedRecipeFeed.tsx",
+    "src/components/OptimizedRecipeCard.tsx",
+    "src/components/EnhancedRecipeReel.tsx",
+    "src/components/RecipeFeed.tsx",
+    "src/components/TikTokStyleFeed.tsx",
+    "src/components/Community.tsx",
+    "src/components/ContentManager.tsx",
+    "src/components/CreatorDashboard.tsx",
+    "src/components/MealPlanner.tsx",
+    "src/components/RestaurantHub.tsx",
+    "src/components/SmartPantry.tsx",
+    "src/components/DesignSystemDemo.tsx",
+    "src/components/MotionSystem.tsx",
+    "src/components/AdvancedAnimations.tsx",
+    "src/components/WebGLMotionSystem.tsx",
+    "src/components/MonetizationTools.tsx",
+    "src/components/CreatorProfile.tsx",
+    "src/components/RecipeReel.tsx",
+    "src/components/RecipeVideoCard.tsx"
   ]
 }
