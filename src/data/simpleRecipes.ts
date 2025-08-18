@@ -7,6 +7,8 @@ export interface SimpleRecipe {
   method: string[];
   difficulty: 'Easy' | 'Medium' | 'Hard';
   time: string;
+  category: string;
+  tags: string[];
 }
 
 export const simpleRecipes: SimpleRecipe[] = [
@@ -17,6 +19,8 @@ export const simpleRecipes: SimpleRecipe[] = [
     creator: 'Chef Priya',
     difficulty: 'Medium',
     time: '45 mins',
+    category: 'Indian',
+    tags: ['chicken', 'curry', 'spicy', 'creamy'],
     ingredients: [
       '500g chicken breast',
       '200ml yogurt',
@@ -40,6 +44,8 @@ export const simpleRecipes: SimpleRecipe[] = [
     creator: 'Marco Rossi',
     difficulty: 'Medium',
     time: '60 mins',
+    category: 'Italian',
+    tags: ['pizza', 'dough', 'cheese', 'tomato'],
     ingredients: [
       '300g all-purpose flour',
       '200g fresh mozzarella',
@@ -61,6 +67,8 @@ export const simpleRecipes: SimpleRecipe[] = [
     creator: 'Somchai Thai',
     difficulty: 'Easy',
     time: '35 mins',
+    category: 'Thai',
+    tags: ['curry', 'coconut', 'vegetables', 'spicy'],
     ingredients: [
       '3 tbsp green curry paste',
       '400ml coconut milk',
@@ -83,6 +91,8 @@ export const simpleRecipes: SimpleRecipe[] = [
     creator: 'Marie Dubois',
     difficulty: 'Hard',
     time: '70 mins',
+    category: 'French',
+    tags: ['pastry', 'butter', 'breakfast', 'flaky'],
     ingredients: [
       '500g all-purpose flour',
       '300g butter',
@@ -105,6 +115,8 @@ export const simpleRecipes: SimpleRecipe[] = [
     creator: 'Carlos Mendoza',
     difficulty: 'Easy',
     time: '40 mins',
+    category: 'Mexican',
+    tags: ['tacos', 'beef', 'street food', 'lime'],
     ingredients: [
       '500g beef flank steak',
       '12 corn tortillas',
@@ -118,6 +130,81 @@ export const simpleRecipes: SimpleRecipe[] = [
       'Warm corn tortillas on griddle',
       'Assemble tacos with beef, onion, and cilantro',
       'Serve with lime wedges and salsa'
+    ]
+  },
+  {
+    id: '6',
+    title: 'Chocolate Chip Cookies',
+    image: 'https://images.unsplash.com/photo-1499636136210-48f472db58e8?w=800',
+    creator: 'Sarah Baker',
+    difficulty: 'Easy',
+    time: '25 mins',
+    category: 'Dessert',
+    tags: ['cookies', 'chocolate', 'baking', 'sweet'],
+    ingredients: [
+      '250g all-purpose flour',
+      '200g chocolate chips',
+      '150g butter',
+      '100g brown sugar',
+      '1 egg',
+      '1 tsp vanilla extract'
+    ],
+    method: [
+      'Cream butter and sugars until fluffy',
+      'Add egg and vanilla, mix well',
+      'Fold in flour and chocolate chips',
+      'Drop spoonfuls onto baking sheet',
+      'Bake at 350°F for 10-12 minutes'
+    ]
+  },
+  {
+    id: '7',
+    title: 'Greek Salad',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800',
+    creator: 'Elena Papadopoulos',
+    difficulty: 'Easy',
+    time: '15 mins',
+    category: 'Mediterranean',
+    tags: ['salad', 'vegetables', 'feta', 'olives'],
+    ingredients: [
+      '2 large tomatoes',
+      '1 cucumber',
+      '1 red onion',
+      '200g feta cheese',
+      '100g kalamata olives',
+      'Extra virgin olive oil'
+    ],
+    method: [
+      'Chop tomatoes, cucumber, and onion',
+      'Combine vegetables in large bowl',
+      'Add crumbled feta and olives',
+      'Drizzle with olive oil and season',
+      'Toss gently and serve immediately'
+    ]
+  },
+  {
+    id: '8',
+    title: 'Beef Stir Fry',
+    image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800',
+    creator: 'Li Wei',
+    difficulty: 'Medium',
+    time: '30 mins',
+    category: 'Chinese',
+    tags: ['stir fry', 'beef', 'vegetables', 'soy sauce'],
+    ingredients: [
+      '400g beef strips',
+      '300g mixed vegetables',
+      '3 tbsp soy sauce',
+      '2 tbsp oyster sauce',
+      '2 cloves garlic',
+      '1 tbsp ginger'
+    ],
+    method: [
+      'Marinate beef in soy sauce for 15 minutes',
+      'Stir fry beef until browned, set aside',
+      'Stir fry vegetables with garlic and ginger',
+      'Return beef to pan with oyster sauce',
+      'Serve hot with steamed rice'
     ]
   }
 ];

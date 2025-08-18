@@ -6,6 +6,8 @@ interface SimpleRecipeForm {
   creator: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   time: string;
+  category: string;
+  tags: string[];
   ingredients: string[];
   method: string[];
 }
@@ -20,11 +22,49 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
     creator: '',
     difficulty: 'Easy',
     time: '',
+    category: '',
+    tags: [''],
     ingredients: [''],
     method: ['']
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Predefined categories and tag suggestions
+  const categories = ['Indian', 'Italian', 'Thai', 'French', 'Mexican', 'Chinese', 'Mediterranean', 'Dessert', 'Breakfast', 'Other'];
+  const tagSuggestions = ['spicy', 'sweet', 'vegetarian', 'gluten-free', 'quick', 'healthy', 'comfort food', 'party', 'weeknight', 'special occasion'];
+
+  const addTag = () => {
+    setForm(prev => ({
+      ...prev,
+      tags: [...prev.tags, '']
+    }));
+  };
+
+  const removeTag = (index: number) => {
+    if (form.tags.length > 1) {
+      setForm(prev => ({
+        ...prev,
+        tags: prev.tags.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const updateTag = (index: number, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      tags: prev.tags.map((tag, i) => i === index ? value : tag)
+    }));
+  };
+
+  const addSuggestionTag = (suggestion: string) => {
+    if (!form.tags.includes(suggestion)) {
+      setForm(prev => ({
+        ...prev,
+        tags: [...prev.tags, suggestion]
+      }));
+    }
+  };
 
   const addIngredient = () => {
     setForm(prev => ({
@@ -96,6 +136,8 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
         creator: '',
         difficulty: 'Easy',
         time: '',
+        category: '',
+        tags: [''],
         ingredients: [''],
         method: ['']
       });
@@ -189,6 +231,77 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   required
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Category
+                </label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Tags Section */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Tags</h2>
+              <button
+                type="button"
+                onClick={addTag}
+                className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Tag Suggestions */}
+            <div className="mb-4">
+              <p className="text-sm text-slate-600 mb-2">Quick add tags:</p>
+              <div className="flex flex-wrap gap-2">
+                {tagSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => addSuggestionTag(suggestion)}
+                    className="px-3 py-1 bg-slate-100 text-slate-700 text-xs rounded-full hover:bg-slate-200 transition-colors"
+                  >
+                    + {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Tags */}
+            <div className="space-y-3">
+              {form.tags.map((tag, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <input
+                    type="text"
+                    value={tag}
+                    onChange={(e) => updateTag(index, e.target.value)}
+                    className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder={`Tag ${index + 1}`}
+                  />
+                  {form.tags.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeTag(index)}
+                      className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
