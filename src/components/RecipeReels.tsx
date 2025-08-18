@@ -278,124 +278,30 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             className="relative w-full h-full max-w-md cursor-pointer"
             onClick={handleRecipeClick}
           >
-          {/* Recipe Image */}
-          <div className="absolute inset-0">
-            <img 
-              src={currentRecipe.image} 
-              alt={currentRecipe.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          </div>
-
-          {/* Recipe Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xs">
-                  {currentRecipe.creator.split(' ').map(n => n[0]).join('')}
-                </span>
-              </div>
-              <span className="font-semibold">{currentRecipe.creator}</span>
-            </div>
-            
-            <h2 className="text-2xl font-bold mb-3">{currentRecipe.title}</h2>
-            
-            <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
-                <span>{currentRecipe.time}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <ChefHat className="w-4 h-4" />
-                <span>{currentRecipe.difficulty}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Action Buttons */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-4">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike(currentRecipe.id);
-              }}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                likedRecipes.has(currentRecipe.id)
-                  ? 'bg-red-500 text-white scale-110'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              <Heart className={`w-6 h-6 ${likedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
-            </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSave(currentRecipe.id);
-              }}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                savedRecipes.has(currentRecipe.id)
-                  ? 'bg-orange-500 text-white scale-110'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              <Bookmark className={`w-6 h-6 ${savedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
-            </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleShare(currentRecipe);
-              }}
-              className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
-            >
-              <Share2 className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Swipe Hint */}
-          <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white/60 text-center">
-            <div className="w-8 h-8 border-2 border-white/30 rounded-full flex items-center justify-center mb-2">
-              <ChevronRight className="w-4 h-4" />
-            </div>
-            <span className="text-xs">Swipe right</span>
-          </div>
-        </div>
-
-        {/* Details Panel (Left Swipe) */}
-        <div 
-          className={`absolute inset-0 bg-white transform transition-transform duration-300 ease-out ${
-            showDetails ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="h-full overflow-y-auto p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <button 
-                onClick={() => setShowDetails(false)}
-                className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <span className="text-sm text-gray-500">Recipe Details</span>
-            </div>
-
             {/* Recipe Image */}
-            <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
+            <div className="absolute inset-0">
               <img 
                 src={currentRecipe.image} 
                 alt={currentRecipe.title}
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
 
-            {/* Recipe Info */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold mb-2">{currentRecipe.title}</h1>
-              <p className="text-gray-600 mb-4">by {currentRecipe.creator}</p>
+            {/* Recipe Info Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">
+                    {currentRecipe.creator.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+                <span className="font-semibold">{currentRecipe.creator}</span>
+              </div>
               
-              <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <h2 className="text-2xl font-bold mb-3">{currentRecipe.title}</h2>
+              
+              <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
                   <span>{currentRecipe.time}</span>
@@ -407,35 +313,132 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               </div>
             </div>
 
-            {/* Ingredients */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
-              <ul className="space-y-2">
-                {currentRecipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span className="text-gray-700">{ingredient}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* Social Action Buttons */}
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike(currentRecipe.id);
+                }}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  likedRecipes.has(currentRecipe.id)
+                    ? 'bg-red-500 text-white scale-110'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+              >
+                <Heart className={`w-6 h-6 ${likedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave(currentRecipe.id);
+                }}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  savedRecipes.has(currentRecipe.id)
+                    ? 'bg-orange-500 text-white scale-110'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+              >
+                <Bookmark className={`w-6 h-6 ${savedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare(currentRecipe);
+                }}
+                className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
+              >
+                <Share2 className="w-6 h-6" />
+              </button>
             </div>
 
-            {/* Method */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3">Method</h3>
-              <ol className="space-y-3">
-                {currentRecipe.method.map((step, index) => (
-                  <li key={index} className="flex space-x-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      {index + 1}
-                    </span>
-                    <span className="text-gray-700">{step}</span>
-                  </li>
-                ))}
-              </ol>
+            {/* Swipe Hint */}
+            <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white/60 text-center">
+              <div className="w-8 h-8 border-2 border-white/30 rounded-full flex items-center justify-center mb-2">
+                <ChevronRight className="w-4 h-4" />
+              </div>
+              <span className="text-xs">Swipe right</span>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Details Panel (Left Swipe) */}
+        {filteredRecipes.length > 0 && (
+          <div 
+            className={`absolute inset-0 bg-white transform transition-transform duration-300 ease-out ${
+              showDetails ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className="h-full overflow-y-auto p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <button 
+                  onClick={() => setShowDetails(false)}
+                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-gray-500">Recipe Details</span>
+              </div>
+
+              {/* Recipe Image */}
+              <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
+                <img 
+                  src={currentRecipe.image} 
+                  alt={currentRecipe.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Recipe Info */}
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold mb-2">{currentRecipe.title}</h1>
+                <p className="text-gray-600 mb-4">by {currentRecipe.creator}</p>
+                
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-5 h-5" />
+                    <span>{currentRecipe.time}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <ChefHat className="w-5 h-5" />
+                    <span>{currentRecipe.difficulty}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
+                <ul className="space-y-2">
+                  {currentRecipe.ingredients.map((ingredient, index) => (
+                    <li key={index} className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-gray-700">{ingredient}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Method */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3">Method</h3>
+                <ol className="space-y-3">
+                  {currentRecipe.method.map((step, index) => (
+                    <li key={index} className="flex space-x-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </span>
+                      <span className="text-gray-700">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation Dots */}
