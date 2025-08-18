@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronUp, ChevronDown, Clock, ChefHat, Plus, Search, Heart, Bookmark, Share2, ShoppingCart, Timer, Star, Play, ArrowUpRight, Fire, Nut, Bowl, Beef } from 'lucide-react';
+import { ChevronRight, ChevronUp, ChevronDown, ChefHat, Plus, Search, Star, Play, ArrowUpRight, Flame, CircleDot, Utensils, Circle } from 'lucide-react';
 import { simpleRecipes, SimpleRecipe } from '../data/simpleRecipes';
 
 interface RecipeReelsProps {
@@ -12,16 +12,10 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [likedRecipes, setLikedRecipes] = useState<Set<string>>(new Set());
-  const [savedRecipes, setSavedRecipes] = useState<Set<string>>(new Set());
-  const [showTimer, setShowTimer] = useState(false);
-  const [timerMinutes, setTimerMinutes] = useState(15);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
+
   const [achievements, setAchievements] = useState<string[]>([]);
   const [showAchievement, setShowAchievement] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter recipes based on search and difficulty
   const filteredRecipes = simpleRecipes.filter(recipe => {
@@ -40,95 +34,9 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
     setShowDetails(false);
   }, [searchQuery, selectedDifficulty]);
 
-  const handleLike = (recipeId: string) => {
-    setLikedRecipes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(recipeId)) {
-        newSet.delete(recipeId);
-      } else {
-        newSet.add(recipeId);
-      }
-      return newSet;
-    });
-  };
 
-  const handleSave = (recipeId: string) => {
-    setSavedRecipes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(recipeId)) {
-        newSet.delete(recipeId);
-      } else {
-        newSet.add(recipeId);
-      }
-      return newSet;
-    });
-  };
 
-  const handleShare = async (recipe: SimpleRecipe) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: recipe.title,
-          text: `Check out this amazing ${recipe.title} recipe by ${recipe.creator}!`,
-          url: window.location.href
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      navigator.clipboard.writeText(`Check out this amazing ${recipe.title} recipe by ${recipe.creator}!`);
-      alert('Recipe link copied to clipboard! 📋');
-    }
-  };
 
-  // Timer functions
-  const startTimer = () => {
-    setIsTimerRunning(true);
-    setTimeLeft(timerMinutes * 60);
-    
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          setIsTimerRunning(false);
-          if (timerRef.current) clearInterval(timerRef.current);
-          
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Timer Complete!', {
-              body: `Your ${timerMinutes} minute timer is done!`,
-              icon: '🍳'
-            });
-          } else {
-            alert(`⏰ Timer Complete! Your ${timerMinutes} minute timer is done!`);
-          }
-          
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const stopTimer = () => {
-    setIsTimerRunning(false);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const resetTimer = () => {
-    stopTimer();
-    setTimeLeft(timerMinutes * 60);
-  };
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
 
   // Achievement system
   const checkAchievements = (recipe: SimpleRecipe) => {
@@ -209,9 +117,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
     document.addEventListener('touchend', handleTouchEnd);
   };
 
-  const handleRecipeClick = () => {
-    setShowDetails(!showDetails);
-  };
+
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -266,7 +172,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-white font-bold text-lg">Santiago ></span>
+            <span className="text-white font-bold text-lg">Santiago &gt;</span>
           </div>
           
           <div className="flex items-center space-x-3">
@@ -510,25 +416,25 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex items-center">
                       <div className="nutrition-icon nutrition-fire">
-                        <Fire className="w-3 h-3 text-white" />
+                        <Flame className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-white text-sm">176 kcal</span>
                     </div>
                     <div className="flex items-center">
                       <div className="nutrition-icon nutrition-fat">
-                        <Nut className="w-3 h-3 text-white" />
+                        <CircleDot className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-white text-sm">4g fat</span>
                     </div>
                     <div className="flex items-center">
                       <div className="nutrition-icon nutrition-carbs">
-                        <Bowl className="w-3 h-3 text-white" />
+                        <Utensils className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-white text-sm">19g carbo</span>
                     </div>
                     <div className="flex items-center">
                       <div className="nutrition-icon nutrition-protein">
-                        <Beef className="w-3 h-3 text-white" />
+                        <Circle className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-white text-sm">17g prot</span>
                     </div>
