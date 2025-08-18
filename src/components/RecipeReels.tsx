@@ -276,54 +276,55 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
         </div>
       )}
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4">
+      <div className="absolute top-0 left-0 right-0 z-20 p-3 sm:p-4 md:p-6">
         {/* Top Row */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">🍳</span>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-xs sm:text-sm">🍳</span>
             </div>
-            <span className="text-white font-bold text-lg">CookBook</span>
+            <span className="text-white font-bold text-base sm:text-lg hidden sm:block">CookBook</span>
+            <span className="text-white font-bold text-sm sm:hidden">CB</span>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button 
               onClick={() => setShowSearch(!showSearch)}
-              className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
             >
-              <Search className="w-4 h-4 text-white" />
+              <Search className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </button>
             <button 
-              onClick={onCreateClick}
-              className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              onClick={() => onCreateClick()}
+              className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
             >
-              <Plus className="w-4 h-4 text-white" />
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </button>
           </div>
         </div>
 
         {/* Search Bar */}
         {showSearch && (
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search recipes, ingredients, or creators..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-12 bg-white/90 backdrop-blur-sm rounded-2xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 pl-10 sm:pl-12 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm sm:text-base"
               />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
             </div>
             
             {/* Difficulty Filter */}
-            <div className="flex items-center space-x-2 mt-3">
-              <span className="text-white/80 text-sm">Difficulty:</span>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="text-white/80 text-xs sm:text-sm">Difficulty:</span>
               {['all', 'Easy', 'Medium', 'Hard'].map((difficulty) => (
                 <button
                   key={difficulty}
                   onClick={() => setSelectedDifficulty(difficulty)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     selectedDifficulty === difficulty
                       ? 'bg-orange-500 text-white'
                       : 'bg-white/20 text-white/80 hover:bg-white/30'
@@ -338,7 +339,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
         {/* Recipe Counter */}
         <div className="flex items-center justify-between">
-          <span className="text-white/80 text-sm">
+          <span className="text-white/80 text-xs sm:text-sm">
             {filteredRecipes.length > 0 ? `${currentIndex + 1} / ${filteredRecipes.length}` : 'No recipes found'}
           </span>
           
@@ -347,7 +348,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             {filteredRecipes.length > 0 && (
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="px-3 py-1 bg-white/20 text-white text-xs rounded-full hover:bg-white/30 transition-colors"
+                className="px-2 sm:px-3 py-1 bg-white/20 text-white text-xs rounded-full hover:bg-white/30 transition-colors"
               >
                 {showDetails ? 'Hide Details' : 'Show Details'}
               </button>
@@ -385,17 +386,17 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
         {/* Trending & Collections */}
         {filteredRecipes.length > 0 && !showDetails && (
-          <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white/80">
+          <div className="absolute top-1/2 left-2 sm:left-4 transform -translate-y-1/2 text-white/80">
             {/* Trending Badge */}
-            <div className="mb-4 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mb-2 mx-auto">
-                <span className="text-white text-lg">🔥</span>
+            <div className="mb-3 sm:mb-4 text-center">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mb-2 mx-auto">
+                <span className="text-white text-sm sm:text-lg">🔥</span>
               </div>
-              <span className="text-xs font-medium">Trending</span>
+              <span className="text-xs font-medium hidden sm:block">Trending</span>
             </div>
             
             {/* Quick Collections */}
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {['Quick & Easy', 'Chef Specials', 'Healthy Options'].map((collection, index) => (
                 <button
                   key={collection}
@@ -405,15 +406,15 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                       setSelectedDifficulty('Easy');
                     } else if (collection === 'Chef Specials') {
                       setSelectedDifficulty('Hard');
-                                         } else if (collection === 'Healthy Options') {
-                       // Filter by healthy ingredients - placeholder for future implementation
-                       // This would need more sophisticated filtering in a real app
-                     }
+                    } else if (collection === 'Healthy Options') {
+                      // Filter by healthy ingredients - placeholder for future implementation
+                      // This would need more sophisticated filtering in a real app
+                    }
                   }}
-                  className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
+                  className="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm"
                   title={collection}
                 >
-                  <span className="text-white text-lg">
+                  <span className="text-white text-sm sm:text-lg">
                     {collection === 'Quick & Easy' ? '⚡' : 
                      collection === 'Chef Specials' ? '👨‍🍳' : '🥗'}
                   </span>
@@ -426,7 +427,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
         {/* Recipe Reel */}
         {filteredRecipes.length > 0 && (
           <div 
-            className="relative w-full h-full max-w-md cursor-pointer"
+            className="relative w-full h-full max-w-sm sm:max-w-md cursor-pointer"
             onClick={handleRecipeClick}
           >
             {/* Recipe Image */}
@@ -440,44 +441,44 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
             </div>
 
             {/* Recipe Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 text-white">
+              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-xs">
                     {currentRecipe.creator.split(' ').map(n => n[0]).join('')}
                   </span>
                 </div>
-                <span className="font-semibold">{currentRecipe.creator}</span>
+                <span className="font-semibold text-sm sm:text-base">{currentRecipe.creator}</span>
               </div>
               
-              <h2 className="text-2xl font-bold mb-3">{currentRecipe.title}</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3">{currentRecipe.title}</h2>
               
-              <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm">
                 <div className="flex items-center space-x-1">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>{currentRecipe.time}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <ChefHat className="w-4 h-4" />
+                  <ChefHat className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>{currentRecipe.difficulty}</span>
                 </div>
               </div>
             </div>
 
             {/* Social Action Buttons */}
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-4">
+            <div className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 sm:space-y-4">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleLike(currentRecipe.id);
                 }}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                   likedRecipes.has(currentRecipe.id)
                     ? 'bg-red-500 text-white scale-110'
                     : 'bg-white/20 text-white hover:bg-white/30'
                 }`}
               >
-                <Heart className={`w-6 h-6 ${likedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
+                <Heart className={`w-4 h-4 sm:w-6 sm:h-6 ${likedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
               </button>
 
               <button
@@ -485,13 +486,13 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                   e.stopPropagation();
                   handleSave(currentRecipe.id);
                 }}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                className={`w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                   savedRecipes.has(currentRecipe.id)
                     ? 'bg-orange-500 text-white scale-110'
                     : 'bg-white/20 text-white hover:bg-white/30'
                 }`}
               >
-                <Bookmark className={`w-6 h-6 ${savedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
+                <Bookmark className={`w-4 h-4 sm:w-6 sm:h-6 ${savedRecipes.has(currentRecipe.id) ? 'fill-current' : ''}`} />
               </button>
 
               <button
@@ -499,18 +500,18 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                   e.stopPropagation();
                   handleShare(currentRecipe);
                 }}
-                className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
+                className="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
               >
-                <Share2 className="w-6 h-6" />
+                <Share2 className="w-4 h-4 sm:w-6 sm:h-6" />
               </button>
             </div>
 
             {/* Swipe Hint */}
-            <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white/60 text-center">
-              <div className="w-8 h-8 border-2 border-white/30 rounded-full flex items-center justify-center mb-2">
-                <ChevronRight className="w-4 h-4" />
+            <div className="absolute top-1/2 left-2 sm:left-4 transform -translate-y-1/2 text-white/60 text-center">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 border-2 border-white/30 rounded-full flex items-center justify-center mb-1 sm:mb-2">
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </div>
-              <span className="text-xs">Swipe right</span>
+              <span className="text-xs hidden sm:block">Swipe right</span>
             </div>
           </div>
         )}
@@ -522,20 +523,20 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               showDetails ? 'translate-x-0' : 'translate-x-full'
             }`}
           >
-            <div className="h-full overflow-y-auto p-6">
+            <div className="h-full overflow-y-auto p-3 sm:p-4 md:p-6">
               {/* Header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <button 
                   onClick={() => setShowDetails(false)}
-                  className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <span className="text-sm text-gray-500">Recipe Details</span>
+                <span className="text-xs sm:text-sm text-gray-500">Recipe Details</span>
               </div>
 
               {/* Recipe Image */}
-              <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
+              <div className="w-full h-32 sm:h-40 md:h-48 rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6">
                 <img 
                   src={currentRecipe.image} 
                   alt={currentRecipe.title}
@@ -544,39 +545,39 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               </div>
 
               {/* Recipe Info */}
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">{currentRecipe.title}</h1>
-                <p className="text-gray-600 mb-4">by {currentRecipe.creator}</p>
+              <div className="mb-4 sm:mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold mb-2">{currentRecipe.title}</h1>
+                <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">by {currentRecipe.creator}</p>
                 
-                                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                   <div className="flex items-center space-x-1">
-                     <Clock className="w-5 h-5" />
-                     <span>{currentRecipe.time}</span>
-                   </div>
-                   <div className="flex items-center space-x-1">
-                     <ChefHat className="w-5 h-5" />
-                     <span>{currentRecipe.difficulty}</span>
-                   </div>
-                 </div>
+                <div className="flex items-center space-x-3 sm:space-x-4 text-xs sm:text-sm text-gray-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>{currentRecipe.time}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <ChefHat className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>{currentRecipe.difficulty}</span>
+                  </div>
+                </div>
 
                  {/* Cooking Timer */}
-                 <div className="mt-4 p-4 bg-orange-50 rounded-xl">
-                   <div className="flex items-center justify-between mb-3">
+                 <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-orange-50 rounded-xl">
+                   <div className="flex items-center justify-between mb-2 sm:mb-3">
                      <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
-                       <Timer className="w-5 h-5 text-orange-500" />
-                       <span>Cooking Timer</span>
+                       <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                       <span className="text-sm sm:text-base">Cooking Timer</span>
                      </h4>
                      <button
                        onClick={() => setShowTimer(!showTimer)}
-                       className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                       className="text-orange-500 hover:text-orange-600 text-xs sm:text-sm font-medium"
                      >
                        {showTimer ? 'Hide' : 'Show'}
                      </button>
                    </div>
                    
                    {showTimer && (
-                     <div className="space-y-3">
-                       <div className="flex items-center space-x-3">
+                     <div className="space-y-2 sm:space-y-3">
+                       <div className="flex items-center space-x-2 sm:space-x-3">
                          <input
                            type="range"
                            min="1"
@@ -586,14 +587,14 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                            className="flex-1"
                            disabled={isTimerRunning}
                          />
-                         <span className="text-lg font-bold text-gray-800 min-w-[3rem]">
+                         <span className="text-base sm:text-lg font-bold text-gray-800 min-w-[2.5rem] sm:min-w-[3rem]">
                            {timerMinutes}m
                          </span>
                        </div>
                        
                        {isTimerRunning && (
                          <div className="text-center">
-                           <div className="text-2xl font-bold text-orange-500">
+                           <div className="text-xl sm:text-2xl font-bold text-orange-500">
                              {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                            </div>
                          </div>
@@ -603,7 +604,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                          {!isTimerRunning ? (
                            <button
                              onClick={startTimer}
-                             className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                             className="flex-1 bg-orange-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-orange-600 transition-colors text-xs sm:text-sm"
                            >
                              Start Timer
                            </button>
@@ -611,13 +612,13 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                            <>
                              <button
                                onClick={stopTimer}
-                               className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors"
+                               className="flex-1 bg-red-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-red-600 transition-colors text-xs sm:text-sm"
                              >
                                Pause
                              </button>
                              <button
                                onClick={resetTimer}
-                               className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors"
+                               className="flex-1 bg-gray-500 text-white py-2 px-3 sm:px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors text-xs sm:text-sm"
                              >
                                Reset
                              </button>
@@ -630,9 +631,9 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               </div>
 
               {/* Ingredients */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Ingredients</h3>
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
+                  <h3 className="text-base sm:text-lg font-semibold">Ingredients</h3>
                   
                   {/* Quick Order All Button */}
                   <button
@@ -642,7 +643,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                       // Open Blinkit by default for bulk order
                       window.open(`https://blinkit.com/search?q=${searchQuery}`, '_blank');
                     }}
-                    className="px-3 py-1 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-1"
+                    className="px-2 sm:px-3 py-1 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-1 self-start sm:self-auto"
                   >
                     <ShoppingCart className="w-3 h-3" />
                     <span>Quick Order All</span>
@@ -650,20 +651,20 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                 </div>
                 
                 {/* Info Text */}
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="text-xs sm:text-sm text-gray-500 mb-3">
                   Click on any delivery service below to order ingredients directly
                 </p>
                 
-                <ul className="space-y-4">
+                <ul className="space-y-3 sm:space-y-4">
                   {currentRecipe.ingredients.map((ingredient, index) => (
                     <li key={index} className="space-y-2">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
                         <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span className="text-gray-700 font-medium">{ingredient}</span>
+                        <span className="text-gray-700 font-medium text-sm sm:text-base">{ingredient}</span>
                       </div>
                       
                       {/* Delivery Service Options */}
-                      <div className="ml-5 flex items-center space-x-2">
+                      <div className="ml-4 sm:ml-5 flex flex-wrap items-center gap-2">
                         <span className="text-xs text-gray-500">Get on:</span>
                         
                         {/* Blinkit */}
@@ -711,24 +712,24 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
               </div>
 
               {/* Method */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">Method</h3>
-                <ol className="space-y-3">
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Method</h3>
+                <ol className="space-y-2 sm:space-y-3">
                   {currentRecipe.method.map((step, index) => (
-                    <li key={index} className="flex space-x-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <li key={index} className="flex space-x-2 sm:space-x-3">
+                      <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="text-gray-700">{step}</span>
+                      <span className="text-gray-700 text-sm sm:text-base">{step}</span>
                     </li>
                   ))}
                 </ol>
               </div>
 
               {/* Recipe Recommendations */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-3">You Might Also Like</h3>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">You Might Also Like</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {simpleRecipes
                     .filter(recipe => 
                       recipe.id !== currentRecipe.id && 
@@ -752,16 +753,16 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                             setShowDetails(false);
                           }
                         }}
-                        className="text-left bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors group"
+                        className="text-left bg-gray-50 rounded-xl p-2 sm:p-3 hover:bg-gray-100 transition-colors group"
                       >
-                        <div className="w-full h-20 rounded-lg overflow-hidden mb-2">
+                        <div className="w-full h-16 sm:h-20 rounded-lg overflow-hidden mb-2">
                           <img 
                             src={recipe.image} 
                             alt={recipe.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         </div>
-                        <h4 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-1">{recipe.title}</h4>
+                        <h4 className="font-semibold text-xs sm:text-sm text-gray-800 mb-1 line-clamp-1">{recipe.title}</h4>
                         <p className="text-xs text-gray-500">{recipe.creator}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <span className="text-xs text-gray-500">{recipe.time}</span>
@@ -778,7 +779,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
       {/* Navigation Dots */}
       {filteredRecipes.length > 0 && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2">
           {filteredRecipes.map((_, index) => (
             <button
               key={index}
@@ -786,7 +787,7 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
                 setCurrentIndex(index);
                 setShowDetails(false);
               }}
-              className={`w-2 h-2 rounded-full transition-colors ${
+              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${
                 index === currentIndex ? 'bg-white' : 'bg-white/30'
               }`}
             />
@@ -796,20 +797,20 @@ const RecipeReels: React.FC<RecipeReelsProps> = ({ onCreateClick }) => {
 
       {/* Navigation Buttons */}
       {filteredRecipes.length > 0 && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-4">
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 sm:space-x-4">
           <button
             onClick={prevRecipe}
             disabled={currentIndex === 0}
-            className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
           >
-            <ChevronUp className="w-6 h-6 text-white" />
+            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
           <button
             onClick={nextRecipe}
             disabled={currentIndex === filteredRecipes.length - 1}
-            className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center disabled:opacity-50"
           >
-            <ChevronDown className="w-6 h-6 text-white" />
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
         </div>
       )}

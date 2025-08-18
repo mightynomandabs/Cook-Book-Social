@@ -218,45 +218,45 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 sm:p-4 md:p-6">
       {/* Header */}
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={onBackToFeed}
             className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Feed</span>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">Back to Feed</span>
           </button>
           
 
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-600">Step {activeStep} of 4</span>
-            <span className="text-sm text-slate-500">{Math.round((activeStep / 4) * 100)}% Complete</span>
+            <span className="text-xs sm:text-sm font-medium text-slate-600">Step {activeStep} of 4</span>
+            <span className="text-xs sm:text-sm text-slate-500">{Math.round((activeStep / 4) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-1.5 sm:h-2">
             <div 
-              className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-orange-500 to-red-500 h-1.5 sm:h-2 rounded-full transition-all duration-300"
               style={{ width: `${(activeStep / 4) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Step 1: Basic Info */}
           {activeStep === 1 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-                <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm">1</span>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center space-x-2">
+                <span className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm">1</span>
                 <span>Basic Recipe Information</span>
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Recipe Title with Voice Input */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -267,23 +267,23 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                       type="text"
                       value={form.title}
                       onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-4 py-3 pr-20 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-16 sm:pr-20 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                       placeholder="e.g., Creamy Mac and Cheese"
                     />
                     <button
                       type="button"
                       onClick={() => startVoiceInput('title')}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-all duration-300 ${
                         isListening && currentVoiceField === 'title'
                           ? 'bg-red-500 text-white animate-pulse'
                           : 'bg-orange-500 text-white hover:bg-orange-600'
                       }`}
                     >
-                      {isListening && currentVoiceField === 'title' ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                      {isListening && currentVoiceField === 'title' ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </button>
                   </div>
                   {isListening && currentVoiceField === 'title' && (
-                    <p className="text-sm text-orange-600 mt-2">🎤 Listening... Speak now!</p>
+                    <p className="text-xs sm:text-sm text-orange-600 mt-2">🎤 Listening... Speak now!</p>
                   )}
                 </div>
 
@@ -295,7 +295,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <select
                     value={form.category}
                     onChange={(e) => setForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                   >
                     <option value="">Select a category</option>
                     {categories.map((cat) => (
@@ -312,7 +312,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <select
                     value={form.cuisine}
                     onChange={(e) => setForm(prev => ({ ...prev, cuisine: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                   >
                     <option value="">Select cuisine</option>
                     {cuisines.map((cuisine) => (
@@ -332,7 +332,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                         key={diff}
                         type="button"
                         onClick={() => setForm(prev => ({ ...prev, difficulty: diff as 'Easy' | 'Medium' | 'Hard' }))}
-                        className={`px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                        className={`px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 text-xs sm:text-sm ${
                           form.difficulty === diff
                             ? 'bg-orange-500 text-white shadow-lg scale-105'
                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -352,7 +352,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <select
                     value={form.servings}
                     onChange={(e) => setForm(prev => ({ ...prev, servings: Number(e.target.value) }))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                   >
                     {servingsOptions.map((num) => (
                       <option key={num} value={num}>{num} {num === 1 ? 'person' : 'people'}</option>
@@ -361,29 +361,29 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                 </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex justify-end mt-6">
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!form.title || !form.category}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next: Timing
-                </button>
-              </div>
+                             {/* Navigation */}
+               <div className="flex justify-end mt-4 sm:mt-6">
+                 <button
+                   type="button"
+                   onClick={nextStep}
+                   disabled={!form.title || !form.category}
+                   className="px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                 >
+                   Next: Timing
+                 </button>
+               </div>
             </div>
           )}
 
           {/* Step 2: Timing */}
           {activeStep === 2 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-                <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm">2</span>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center space-x-2">
+                <span className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm">2</span>
                 <span>Cooking Times</span>
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {/* Prep Time */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -392,7 +392,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <select
                     value={form.prepTime}
                     onChange={(e) => setForm(prev => ({ ...prev, prepTime: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                   >
                     {prepTimeOptions.map((time) => (
                       <option key={time} value={time}>{time}</option>
@@ -408,7 +408,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <select
                     value={form.cookTime}
                     onChange={(e) => setForm(prev => ({ ...prev, cookTime: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                   >
                     {cookTimeOptions.map((time) => (
                       <option key={time} value={time}>{time}</option>
@@ -421,7 +421,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Total Time
                   </label>
-                  <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl text-slate-600 text-sm sm:text-base">
                     {(() => {
                       const prep = parseInt(form.prepTime);
                       const cook = parseInt(form.cookTime);
@@ -433,18 +433,18 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-6">
+              <div className="flex justify-between mt-4 sm:mt-6">
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 rounded-lg sm:rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base"
                 >
                   Previous
                 </button>
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-orange-600 transition-colors text-sm sm:text-base"
                 >
                   Next: Ingredients
                 </button>
@@ -454,23 +454,23 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
 
           {/* Step 3: Ingredients */}
           {activeStep === 3 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-                <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm">3</span>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center space-x-2">
+                <span className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm">3</span>
                 <span>Ingredients</span>
               </h2>
 
               {/* Smart Ingredient Suggestions */}
               {form.category && (
-                <div className="mb-6 p-4 bg-orange-50 rounded-xl">
-                  <h3 className="font-semibold text-orange-800 mb-3">💡 Smart Suggestions for {form.category}</h3>
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-orange-50 rounded-lg sm:rounded-xl">
+                  <h3 className="font-semibold text-orange-800 mb-2 sm:mb-3 text-sm sm:text-base">💡 Smart Suggestions for {form.category}</h3>
                   <div className="flex flex-wrap gap-2">
                     {getIngredientSuggestions(form.category).map((ingredient) => (
                       <button
                         key={ingredient}
                         type="button"
                         onClick={() => addSmartIngredient(ingredient)}
-                        className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-xs sm:text-sm"
                       >
                         + {ingredient}
                       </button>
@@ -480,23 +480,23 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
               )}
 
               {/* Current Ingredients */}
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 sm:space-y-3 mb-4">
                 {form.ingredients.map((ingredient, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <div key={index} className="flex items-center space-x-2 sm:space-x-3">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-orange-500 rounded-full"></div>
                     <input
                       type="text"
                       value={ingredient}
                       onChange={(e) => updateIngredient(index, e.target.value)}
-                      className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
                       placeholder={`Ingredient ${index + 1}`}
                     />
                     <button
                       type="button"
                       onClick={() => removeIngredient(index)}
-                      className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-200 transition-colors"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 text-red-600 rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-red-200 transition-colors"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 ))}
@@ -506,18 +506,18 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
               <button
                 type="button"
                 onClick={addCustomIngredient}
-                className="w-full px-4 py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 hover:border-orange-400 hover:text-orange-500 transition-colors flex items-center justify-center space-x-2"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-dashed border-slate-300 rounded-lg sm:rounded-xl text-slate-500 hover:border-orange-400 hover:text-orange-500 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Add Custom Ingredient</span>
               </button>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-6">
+              <div className="flex justify-between mt-4 sm:mt-6">
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 rounded-lg sm:rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base"
                 >
                   Previous
                 </button>
@@ -525,7 +525,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
                   type="button"
                   onClick={nextStep}
                   disabled={form.ingredients.length === 0}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   Next: Method
                 </button>
@@ -535,23 +535,23 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
 
           {/* Step 4: Method */}
           {activeStep === 4 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-                <span className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm">4</span>
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center space-x-2">
+                <span className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm">4</span>
                 <span>Cooking Method</span>
               </h2>
 
               {/* Smart Method Suggestions */}
               {form.category && (
-                <div className="mb-6 p-4 bg-green-50 rounded-xl">
-                  <h3 className="font-semibold text-green-800 mb-3">💡 Common Steps for {form.category}</h3>
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg sm:rounded-xl">
+                  <h3 className="font-semibold text-green-800 mb-2 sm:mb-3 text-sm sm:text-base">💡 Common Steps for {form.category}</h3>
                   <div className="space-y-2">
                     {getMethodSuggestions(form.category).map((step, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => addSmartMethodStep(step)}
-                        className="w-full text-left px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm"
+                        className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-xs sm:text-sm"
                       >
                         + {step}
                       </button>
@@ -561,25 +561,25 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
               )}
 
               {/* Current Method Steps */}
-              <div className="space-y-4 mb-4">
+              <div className="space-y-3 sm:space-y-4 mb-4">
                 {form.method.map((step, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <span className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  <div key={index} className="flex items-start space-x-2 sm:space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
                       {index + 1}
                     </span>
                     <textarea
                       value={step}
                       onChange={(e) => updateMethodStep(index, e.target.value)}
-                      className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                      className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-sm sm:text-base"
                       rows={2}
                       placeholder={`Step ${index + 1}`}
                     />
                     <button
                       type="button"
                       onClick={() => removeMethodStep(index)}
-                      className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-200 transition-colors flex-shrink-0"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 text-red-600 rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-red-200 transition-colors flex-shrink-0"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 ))}
@@ -589,34 +589,34 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
               <button
                 type="button"
                 onClick={addCustomMethodStep}
-                className="w-full px-4 py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 hover:border-green-400 hover:text-green-500 transition-colors flex items-center justify-center space-x-2"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-dashed border-slate-300 rounded-lg sm:rounded-xl text-slate-500 hover:border-green-400 hover:text-green-500 transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Add Custom Step</span>
               </button>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-6">
+              <div className="flex justify-between mt-4 sm:mt-6">
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 text-slate-700 rounded-lg sm:rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base"
                 >
                   Previous
                 </button>
                 <button
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
-                  className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="px-6 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg sm:rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm sm:text-base"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>Creating...</span>
                     </>
                   ) : (
                     <>
-                      <Save className="w-5 h-5" />
+                      <Save className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span>Create Recipe</span>
                     </>
                   )}
