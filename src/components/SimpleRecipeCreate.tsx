@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Plus, X, Mic, MicOff, Save, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, X, Mic, MicOff, Save } from 'lucide-react';
 
 interface SmartRecipeForm {
   title: string;
-  creator: string;
+
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  time: string;
+
   category: string;
-  tags: string[];
+
   ingredients: string[];
   method: string[];
   servings: number;
@@ -23,11 +23,11 @@ interface SimpleRecipeCreateProps {
 const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed }) => {
   const [form, setForm] = useState<SmartRecipeForm>({
     title: '',
-    creator: 'Home Chef',
+
     difficulty: 'Easy',
-    time: '30 min',
+
     category: '',
-    tags: [],
+
     ingredients: [],
     method: [],
     servings: 4,
@@ -39,7 +39,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [currentVoiceField, setCurrentVoiceField] = useState<string | null>(null);
-  const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
+
   const [activeStep, setActiveStep] = useState(1);
 
   // Predefined options for smart selection
@@ -230,15 +230,7 @@ const SimpleRecipeCreate: React.FC<SimpleRecipeCreateProps> = ({ onBackToFeed })
             <span>Back to Feed</span>
           </button>
           
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowSmartSuggestions(!showSmartSuggestions)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Smart Mode</span>
-            </button>
-          </div>
+
         </div>
 
         {/* Progress Bar */}
