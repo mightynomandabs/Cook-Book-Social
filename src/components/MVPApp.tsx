@@ -18,36 +18,36 @@ const MVPApp: React.FC = () => {
         return <SimpleRecipeCreate onBackToFeed={handleBackToFeed} />;
       case 'profile':
         return (
-          <div className="min-h-screen bg-dark-primary p-4">
-            <div className="max-w-2xl mx-auto">
-              {/* Profile Header */}
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-3xl">👨‍🍳</span>
-                </div>
-                <h1 className="text-3xl font-bold text-white mb-2">Home Chef</h1>
-                <p className="text-gray-400">Ready to cook amazing recipes!</p>
+                  <div className="min-h-screen bg-appetit-primary p-4">
+          <div className="max-w-2xl mx-auto">
+            {/* Profile Header */}
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 appetit-orange rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-3xl">👨‍🍳</span>
               </div>
+              <h1 className="text-3xl font-bold appetit-text-primary mb-2">Home Chef</h1>
+              <p className="appetit-text-secondary">Ready to cook amazing recipes!</p>
+            </div>
 
-              {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="glass-effect rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-pink-500">8</div>
-                  <div className="text-sm text-gray-400">Recipes</div>
-                </div>
-                <div className="glass-effect rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-500">3</div>
-                  <div className="text-sm text-gray-400">Categories</div>
-                </div>
-                <div className="glass-effect rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-500">4</div>
-                  <div className="text-sm text-gray-400">Achievements</div>
-                </div>
+                          {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="appetit-card rounded-2xl p-4 text-center">
+                <div className="text-2xl font-bold appetit-orange">8</div>
+                <div className="text-sm appetit-text-secondary">Recipes</div>
               </div>
+              <div className="appetit-card rounded-2xl p-4 text-center">
+                <div className="text-2xl font-bold text-green-500">3</div>
+                <div className="text-sm appetit-text-secondary">Categories</div>
+              </div>
+              <div className="appetit-card rounded-2xl p-4 text-center">
+                <div className="text-2xl font-bold text-blue-500">4</div>
+                <div className="text-sm appetit-text-secondary">Achievements</div>
+              </div>
+            </div>
 
               {/* Achievements Section */}
-              <div className="glass-effect rounded-2xl p-6 mb-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2 text-white">
+              <div className="appetit-card rounded-2xl p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2 appetit-text-primary">
                   <span className="text-2xl">🏆</span>
                   <span>Achievements</span>
                 </h2>
@@ -60,19 +60,19 @@ const MVPApp: React.FC = () => {
                   ].map((achievement, index) => (
                     <div key={index} className={`p-3 rounded-xl border-2 ${
                       achievement.unlocked 
-                        ? 'border-pink-500/30 bg-pink-500/10' 
-                        : 'border-gray-600 bg-gray-800/50'
+                        ? 'border-appetit-orange/30 bg-appetit-orange-light' 
+                        : 'border-appetit-purple/20 bg-appetit-purple-light'
                     }`}>
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="text-lg">{achievement.icon}</span>
                         <span className={`font-medium text-sm ${
-                          achievement.unlocked ? 'text-pink-400' : 'text-gray-500'
+                          achievement.unlocked ? 'appetit-orange' : 'appetit-text-secondary'
                         }`}>
                           {achievement.name}
                         </span>
                       </div>
                       <p className={`text-xs ${
-                        achievement.unlocked ? 'text-pink-300' : 'text-gray-600'
+                        achievement.unlocked ? 'appetit-orange' : 'appetit-text-tertiary'
                       }`}>
                         {achievement.description}
                       </p>
@@ -83,10 +83,10 @@ const MVPApp: React.FC = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button onClick={() => setCurrentTab('create')} className="w-full px-6 py-3 pink-gradient text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                <button onClick={() => setCurrentTab('create')} className="appetit-button-primary w-full">
                   Create Your First Recipe
                 </button>
-                <button onClick={() => setCurrentTab('feed')} className="w-full px-6 py-3 glass-effect text-white rounded-xl font-semibold hover:glass-effect-hover transition-all">
+                <button onClick={() => setCurrentTab('feed')} className="appetit-button-secondary w-full">
                   Browse More Recipes
                 </button>
               </div>

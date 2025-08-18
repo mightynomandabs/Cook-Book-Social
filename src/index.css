@@ -33,8 +33,8 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #0f0f0f;
-    color: #ffffff;
+    background-color: #FDF8F3;
+    color: #2D1B69;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -70,109 +70,287 @@
     overflow: hidden;
   }
   
-  /* Dark theme specific styles */
-  .dark-card {
-    background: rgba(255, 255, 255, 0.05);
+  /* Appétit design system */
+  .appetit-card {
+    background: #FFFFFF;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(45, 27, 105, 0.08);
+    border: 1px solid rgba(45, 27, 105, 0.05);
+  }
+  
+  .appetit-card-hover {
+    background: #FFFFFF;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(45, 27, 105, 0.12);
+    border: 1px solid rgba(45, 27, 105, 0.08);
+    transform: translateY(-2px);
+  }
+  
+  .appetit-gradient {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+  }
+  
+  .appetit-purple {
+    background: #2D1B69;
+  }
+  
+  .appetit-purple-light {
+    background: rgba(45, 27, 105, 0.05);
+  }
+  
+  .appetit-orange {
+    background: #FF6B35;
+  }
+  
+  .appetit-orange-light {
+    background: rgba(255, 107, 53, 0.1);
+  }
+  
+  .appetit-beige {
+    background: #FDF8F3;
+  }
+  
+  .appetit-beige-light {
+    background: #FEFCF9;
+  }
+  
+  .appetit-text-primary {
+    color: #2D1B69;
+  }
+  
+  .appetit-text-secondary {
+    color: #6B7280;
+  }
+  
+  .appetit-text-tertiary {
+    color: #9CA3AF;
+  }
+  
+  .appetit-text-white {
+    color: #FFFFFF;
+  }
+  
+  .appetit-button-primary {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+  }
+  
+  .appetit-button-secondary {
+    background: #FEFCF9;
+    color: #2D1B69;
+    border: 2px solid rgba(45, 27, 105, 0.1);
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-button-secondary:hover {
+    background: rgba(45, 27, 105, 0.05);
+    border-color: rgba(45, 27, 105, 0.2);
+  }
+  
+  .appetit-input {
+    background: #FFFFFF;
+    border: 2px solid rgba(45, 27, 105, 0.1);
+    border-radius: 16px;
+    padding: 16px 20px;
+    color: #2D1B69;
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-input:focus {
+    outline: none;
+    border-color: #FF6B35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  }
+  
+  .appetit-input::placeholder {
+    color: #9CA3AF;
+  }
+  
+  .appetit-category-pill {
+    background: rgba(45, 27, 105, 0.05);
+    color: #2D1B69;
+    border: 1px solid rgba(45, 27, 105, 0.1);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-category-pill:hover {
+    background: rgba(45, 27, 105, 0.1);
+    border-color: rgba(45, 27, 105, 0.2);
+  }
+  
+  .appetit-category-pill.active {
+    background: #2D1B69;
+    color: white;
+    border-color: #2D1B69;
+  }
+  
+  .appetit-recipe-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(45, 27, 105, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-recipe-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(45, 27, 105, 0.15);
+  }
+  
+  .appetit-avatar {
+    border: 3px solid #FF6B35;
+    box-shadow: 0 0 0 2px #FFFFFF;
+  }
+  
+  .appetit-status-bar {
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(45, 27, 105, 0.05);
   }
   
-  .dark-card-hover {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-  
-  .gradient-text {
-    background: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .pink-gradient {
-    background: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
-  }
-  
-  .purple-gradient {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-  }
-  
-  .yellow-gradient {
-    background: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%);
-  }
-  
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.1);
+  .appetit-bottom-nav {
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(45, 27, 105, 0.05);
+    box-shadow: 0 -4px 20px rgba(45, 27, 105, 0.08);
   }
   
-  .glass-effect-hover {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  .appetit-floating-button {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+    transition: all 0.3s ease;
   }
   
-  .star-rating {
-    color: #FCD34D;
+  .appetit-floating-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(255, 107, 53, 0.4);
   }
   
-  .nutrition-icon {
-    width: 20px;
-    height: 20px;
+  .appetit-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .appetit-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(45, 27, 105, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .appetit-dot.active {
+    background: #FF6B35;
+    transform: scale(1.2);
+  }
+  
+  .appetit-progress-bar {
+    background: rgba(45, 27, 105, 0.1);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  
+  .appetit-progress-fill {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+  
+  .appetit-step-number {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .appetit-nutrition-icon {
+    width: 24px;
+    height: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    margin-right: 8px;
+    margin-right: 12px;
+    color: white;
   }
   
-  .nutrition-fire {
-    background: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
+  .appetit-nutrition-calories {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
   }
   
-  .nutrition-fat {
+  .appetit-nutrition-fat {
     background: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%);
   }
   
-  .nutrition-carbs {
+  .appetit-nutrition-carbs {
     background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
   }
   
-  .nutrition-protein {
+  .appetit-nutrition-protein {
     background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  }
+  
+  .appetit-star-rating {
+    color: #FCD34D;
+  }
+  
+  .appetit-glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .appetit-glass-effect-hover {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
 
 @layer utilities {
   .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 4px rgba(45, 27, 105, 0.1);
   }
   
   .text-shadow-lg {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 4px 8px rgba(45, 27, 105, 0.15);
   }
   
-  .bg-dark-primary {
-    background-color: #0f0f0f;
+  .bg-appetit-primary {
+    background-color: #FDF8F3;
   }
   
-  .bg-dark-secondary {
-    background-color: #1a1a1a;
+  .bg-appetit-secondary {
+    background-color: #FFFFFF;
   }
   
-  .bg-dark-tertiary {
-    background-color: #2a2a2a;
-  }
-  
-  .text-primary {
-    color: #ffffff;
-  }
-  
-  .text-secondary {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .text-tertiary {
-    color: rgba(255, 255, 255, 0.6);
+  .bg-appetit-tertiary {
+    background-color: #FEFCF9;
   }
 }

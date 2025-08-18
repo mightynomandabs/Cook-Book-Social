@@ -8,15 +8,15 @@ interface SimpleBottomNavProps {
 
 const SimpleBottomNav: React.FC<SimpleBottomNavProps> = ({ currentTab, onTabChange }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 glass-effect border-t border-white/10 px-4 py-3 backdrop-blur-xl">
+    <div className="fixed bottom-0 left-0 right-0 appetit-bottom-nav border-t border-appetit-purple/10 px-4 py-3 backdrop-blur-xl">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Feed Tab */}
         <button
           onClick={() => onTabChange('feed')}
           className={`flex flex-col items-center space-y-1 py-2 px-4 rounded-xl transition-all duration-300 ${
             currentTab === 'feed'
-              ? 'text-pink-500 bg-pink-500/20'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              ? 'text-appetit-orange bg-appetit-orange-light'
+              : 'appetit-text-secondary hover:appetit-text-primary hover:bg-appetit-purple-light'
           }`}
         >
           <Home className="w-6 h-6" />
@@ -28,8 +28,8 @@ const SimpleBottomNav: React.FC<SimpleBottomNavProps> = ({ currentTab, onTabChan
           onClick={() => onTabChange('create')}
           className={`flex flex-col items-center space-y-1 py-2 px-4 rounded-xl transition-all duration-300 ${
             currentTab === 'create'
-              ? 'text-pink-500 bg-pink-500/20'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              ? 'text-appetit-orange bg-appetit-orange-light'
+              : 'appetit-text-secondary hover:appetit-text-primary hover:bg-appetit-purple-light'
           }`}
         >
           <Plus className="w-6 h-6" />
@@ -41,8 +41,8 @@ const SimpleBottomNav: React.FC<SimpleBottomNavProps> = ({ currentTab, onTabChan
           onClick={() => onTabChange('profile')}
           className={`flex flex-col items-center space-y-1 py-2 px-4 rounded-xl transition-all duration-300 ${
             currentTab === 'profile'
-              ? 'text-pink-500 bg-pink-500/20'
-              : 'text-gray-400 hover:text-white hover:bg-white/10'
+              ? 'text-appetit-orange bg-appetit-orange-light'
+              : 'appetit-text-secondary hover:appetit-text-primary hover:bg-appetit-purple-light'
           }`}
         >
           <User className="w-6 h-6" />
